@@ -108,7 +108,8 @@ jobs:
       - run: npm install
       - run: npm test        
           
-workflows:  
+workflows:
+  version: 2
   pr-check-workflow:
     jobs:
     - pr_check 

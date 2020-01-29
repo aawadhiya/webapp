@@ -106,11 +106,9 @@ jobs:
     steps:
       - checkout # check out source code to working directory
       - run: npm install
-      - run: npm test
+      - run: npm test        
           
-          
-workflows:
-  version: 2
+workflows:  
   pr-check-workflow:
     jobs:
     - pr_check

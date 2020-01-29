@@ -111,8 +111,8 @@ jobs:
 workflows:  
   pr-check-workflow:
     jobs:
-    - pr_check
- build-workflow:
+    - pr_check 
+  build-workflow:
     jobs:
     - build
       

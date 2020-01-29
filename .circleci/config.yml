@@ -91,8 +91,7 @@
 version: 2
 jobs:
   pr_check:
-    docker:
-    #  - image: circleci/python:2.7-jessie
+    docker:  
        - image: circleci/node:13.6.0
     steps:
       - checkout # check out source code to working directory

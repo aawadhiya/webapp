@@ -98,9 +98,21 @@ jobs:
           name: Gradle build
           command: |
             echo "Hello World!"
+  build:
+    docker:
+      - image: circleci/python:2.7-jessie
+    steps:
+      - checkout # check out source code to working directory
+      - run:
+          name: Gradle build
+          command: |
+            echo "Hello World!"
 workflows:
   version: 2
   pr-check-workflow:
     jobs:
     - pr_check
+ build-workflow:
+    jobs:
+    - build
       

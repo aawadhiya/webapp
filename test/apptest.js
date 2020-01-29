@@ -58,22 +58,22 @@ const InvalidPutCredential = {
 describe('Post get and update test', function (done) {
 
 
-    it("valid register details", (done) => {
-        chai.request(app)
-            .post('/v1/user/')
-            .send(ValidPostCredential)
-            .then((res) => {
-                //assertions
-                console.log("ValidpostCredential", ValidPostCredential);
-                this.timeout(1000);
-                setTimeout(done, 300);
-                console.log("Response value Test:-", res.status);
-                expect(res).to.have.status(201);
-                done();
-            }).catch(err => {
-                done(err);
-            });
-    });
+    // it("valid register details", (done) => {
+    //     chai.request(app)
+    //         .post('/v1/user/')
+    //         .send(ValidPostCredential)
+    //         .then((res) => {
+    //             //assertions
+    //             console.log("ValidpostCredential", ValidPostCredential);
+    //             this.timeout(1000);
+    //             setTimeout(done, 300);
+    //             console.log("Response value Test:-", res.status);
+    //             expect(res).to.have.status(201);
+    //             done();
+    //         }).catch(err => {
+    //             done(err);
+    //         });
+    // });
 
     it("Invalid register details", (done) => {
         chai.request(app)

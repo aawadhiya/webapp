@@ -212,7 +212,7 @@ exports.getBillById = function (req, res) {
                     console.log("owner id is..", results[0].id);
                     var ownerId = results[0].id;
                     var vals = [billId,ownerId];
-                                connection.query("SELECT * FROM bill where id =?", vals, function (error, qResult) {
+                                connection.query("SELECT * FROM bill where id =? and owner_id = ?", vals, function (error, qResult) {
                                     if (error) {
                                         return res.status(404).send({ message: 'Bill Not Found' });
                                     } else {

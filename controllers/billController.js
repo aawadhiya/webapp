@@ -63,7 +63,6 @@ exports.registerBill = function (req, res) {
         return res.status(400).send({ message: "Bad Request, min value for amount_due cannot be less than 0.1" });
     }
 
-
     function isNumber(value) {
         return typeof value === 'number' && isFinite(value);
     }
@@ -74,7 +73,8 @@ exports.registerBill = function (req, res) {
 
     if (!isDouble(req.body.amount_due) || req.body.amount_due < 0.1)
         return res.status(400).send({ "Bad Request": "amount due cannot be less than 0.1 " });
-
+    if (isNumber(req.body.paymentStatus))
+        return res.status(400).send({ "Bad Request": " payment status is Enum, valid value can be - paid, due, past_due or no_payment_required" });
     if (/^\s*$/.test(req.body.paymentStatus) || req.body.paymentStatus == null) {
         return res.status(400).send({ "Bad Request": " payment status can not be left blank" });
     }
@@ -117,7 +117,7 @@ exports.registerBill = function (req, res) {
                         due_date: dueDate,
                         amount_due: req.body.amount_due,
                         categories: categoryString,
-                        paymentStatus: req.body.paymentStatus
+                        paymentStatus: req.body.paymentStatus.trim()
                     }
 
                     connection.query('INSERT INTO bill SET ?', bill, function (error, result1) {
@@ -209,40 +209,43 @@ exports.getBillById = function (req, res) {
                     console.log("Bill id....", req.params['id']);
 
                     var billId = req.params['id'];
-
-                    connection.query("SELECT * FROM bill where id =?", billId, function (error, qResult) {
-                        if (error) {
-                            return res.status(404).send({ message: 'Bill Not Found' });
-                        } else {
-                            var categories = [];
-                            if (qResult.length > 0) {
-
-                                var dueDate1 = qResult[0].due_date.toString().substring(0, 10);
-                                console.log("due date..", qResult[0].due_date);
-                                var catArray = [];
-                                var categories = JSON.stringify(qResult[0]['categories']);
-                                var catList = categories.split(',');
-                                console.log("CATList.....", catList);
-                                for (var i = 0; i < catList.length; i++) {
-                                    catArray[i] = catList[i].replace(/[\\"\[\]]/g, '');
-                                }
-
-                                console.log("CAT.....", catArray);
-                                console.log("stringify cate : ", JSON.stringify(qResult[0]['categories']));
-                                console.log("stringify cate : ", qs.parse(qResult[0].categories));
-                                console.log("stringify cate : ", categories);
-                                qResult[0].categories = catArray;
-                                console.log(qResult[0].categories);
-                                //res.send(qResult);
-                                console.log("Response111 object ", qResult[0]);
-
-                            }
-                            else {
-                                return res.status(404).send({ message: 'Bill not found' });
-                            }
-                        }
-                        return res.status(200).send(qResult[0]);
-                    });
+                    console.log("owner id is..", results[0].id);
+                    var ownerId = results[0].id;
+                    var vals = [billId,ownerId];
+                                connection.query("SELECT * FROM bill where id =?", vals, function (error, qResult) {
+                                    if (error) {
+                                        return res.status(404).send({ message: 'Bill Not Found' });
+                                    } else {
+                                        var categories = [];
+                                        if (qResult.length > 0) {
+            
+                                            var dueDate1 = qResult[0].due_date.toString().substring(0, 10);
+                                            console.log("due date..", qResult[0].due_date);
+                                            var catArray = [];
+                                            var categories = JSON.stringify(qResult[0]['categories']);
+                                            var catList = categories.split(',');
+                                            console.log("CATList.....", catList);
+                                            for (var i = 0; i < catList.length; i++) {
+                                                catArray[i] = catList[i].replace(/[\\"\[\]]/g, '');
+                                            }
+            
+                                            console.log("CAT.....", catArray);
+                                            console.log("stringify cate : ", JSON.stringify(qResult[0]['categories']));
+                                            console.log("stringify cate : ", qs.parse(qResult[0].categories));
+                                            console.log("stringify cate : ", categories);
+                                            qResult[0].categories = catArray;
+                                            console.log(qResult[0].categories);
+                                            //res.send(qResult);
+                                            console.log("Response111 object ", qResult[0]);
+            
+                                        }
+                                        else {
+                                            return res.status(404).send({ message: 'Bill not found' });
+                                        }
+                                    }
+                                    return res.status(200).send(qResult[0]);
+                                });                   
+                    
                 }
                 else {
                     return res.status(401).send({ message: 'Unauthorized,username or  password does not match the current user' });
@@ -334,7 +337,6 @@ exports.getBills = function (req, res) {
             }
         }
     });
-
 }
 
 // Update bill ....
@@ -365,11 +367,18 @@ exports.updateBill = function (req, res) {
     function isDouble(value) {
         return !isNaN(value) && parseFloat(value) == value && !isNaN(parseFloat(value, 10)) && !(typeof value === 'string');
     }
+
+    function isNumber(value) {
+        return typeof value === 'number' && isFinite(value);
+    }
     var minValue = 0.1;
     var amountDue = JSON.parse(req.body.amount_due);
     console.log("Amount due", amountDue);
     if (!isDouble(req.body.amount_due) || req.body.amount_due < minValue)
         return res.status(400).send({ "Bad Request": "amount due cannot be less than 0.1 " });
+
+    if (isNumber(req.body.paymentStatus))
+        return res.status(400).send({ "Bad Request": " payment status is Enum, valid value can be - paid, due, past_due or no_payment_required" });
 
     if ((req.body.vendor == null || (req.body.vendor).trim().length < 1) || (req.body.due_date == null || (req.body.due_date).trim().length < 1) ||
         (req.body.amount_due == null) || (req.body.categories == null || req.body.categories.length < 1) ||
@@ -398,7 +407,7 @@ exports.updateBill = function (req, res) {
                                 console.log("req.cate....", categoriesString);
                                 console.log("request body....", req.body);
                                 connection.query('UPDATE bill SET updated_ts = ?, vendor = ?, bill_date = ?, due_date = ?, amount_due = ?, categories = ?, paymentStatus = ? WHERE id = ?',
-                                    [today, req.body.vendor, req.body.bill_date, req.body.due_date, req.body.amount_due, categoriesString, req.body.paymentStatus, billId], function (error, results1) {
+                                    [today, req.body.vendor, req.body.bill_date, req.body.due_date, req.body.amount_due, categoriesString, req.body.paymentStatus.trim(), billId], function (error, results1) {
                                         if (error) {
                                             console.log("Errorr...", error);
                                             res.status(400).send({ "bad request": "unable to update bill" });

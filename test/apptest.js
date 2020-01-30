@@ -89,7 +89,7 @@ describe('Post get and update test', function (done) {
     //             done(err);
     //         });
     // });
-
+// Removed comment..
     it("Get user test ", (done) => {
         chai.request(app)
             .get('/v1/user/')

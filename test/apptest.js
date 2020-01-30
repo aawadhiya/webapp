@@ -75,21 +75,21 @@ describe('Post get and update test', function (done) {
     //         });
     // });
 
-    it("Invalid register details", (done) => {
-        chai.request(app)
-            .post('/v1/user/')
-            .send(InvalidPostCredential)
-            .then((res) => {
-                //assertions
-                this.timeout(1000);
-                setTimeout(done, 300);
-                expect(res).to.have.status(400);
-                done();
-            }).catch(err => {
-                done(err);
-            });
-    });
-
+    // it("Invalid register details", (done) => {
+    //     chai.request(app)
+    //         .post('/v1/user/')
+    //         .send(InvalidPostCredential)
+    //         .then((res) => {
+    //             //assertions
+    //             this.timeout(1000);
+    //             setTimeout(done, 300);
+    //             expect(res).to.have.status(400);
+    //             done();
+    //         }).catch(err => {
+    //             done(err);
+    //         });
+    // });
+// Removed comment..
     it("Get user test ", (done) => {
         chai.request(app)
             .get('/v1/user/')

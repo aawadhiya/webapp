@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "mocha || true",
+    "test": "mocha --exit",
     "start": "nodemon app"
   },
   "keywords": [],

@@ -211,41 +211,42 @@ exports.getBillById = function (req, res) {
                     var billId = req.params['id'];
                     console.log("owner id is..", results[0].id);
                     var ownerId = results[0].id;
-                    var vals = [billId,ownerId];
-                                connection.query("SELECT * FROM bill where id =? and owner_id = ?", vals, function (error, qResult) {
-                                    if (error) {
-                                        return res.status(404).send({ message: 'Bill Not Found' });
-                                    } else {
-                                        var categories = [];
-                                        if (qResult.length > 0) {
-            
-                                            var dueDate1 = qResult[0].due_date.toString().substring(0, 10);
-                                            console.log("due date..", qResult[0].due_date);
-                                            var catArray = [];
-                                            var categories = JSON.stringify(qResult[0]['categories']);
-                                            var catList = categories.split(',');
-                                            console.log("CATList.....", catList);
-                                            for (var i = 0; i < catList.length; i++) {
-                                                catArray[i] = catList[i].replace(/[\\"\[\]]/g, '');
-                                            }
-            
-                                            console.log("CAT.....", catArray);
-                                            console.log("stringify cate : ", JSON.stringify(qResult[0]['categories']));
-                                            console.log("stringify cate : ", qs.parse(qResult[0].categories));
-                                            console.log("stringify cate : ", categories);
-                                            qResult[0].categories = catArray;
-                                            console.log(qResult[0].categories);
-                                            //res.send(qResult);
-                                            console.log("Response111 object ", qResult[0]);
-            
-                                        }
-                                        else {
-                                            return res.status(404).send({ message: 'Bill not found' });
-                                        }
-                                    }
-                                    return res.status(200).send(qResult[0]);
-                                });                   
-                    
+                    var vals = [billId, ownerId];
+                   
+                    connection.query("SELECT * FROM bill where id =? and owner_id=?", vals, function (error, qResult) {
+                        if (error) {
+                            return res.status(401).send({ message: 'unauthorized' });
+                        } else {
+                            var categories = [];
+                            if (qResult.length > 0) {
+
+                                var dueDate1 = qResult[0].due_date.toString().substring(0, 10);
+                                console.log("due date..", qResult[0].due_date);
+                                var catArray = [];
+                                var categories = JSON.stringify(qResult[0]['categories']);
+                                var catList = categories.split(',');
+                                console.log("CATList.....", catList);
+                                for (var i = 0; i < catList.length; i++) {
+                                    catArray[i] = catList[i].replace(/[\\"\[\]]/g, '');
+                                }
+
+                                console.log("CAT.....", catArray);
+                                console.log("stringify cate : ", JSON.stringify(qResult[0]['categories']));
+                                console.log("stringify cate : ", qs.parse(qResult[0].categories));
+                                console.log("stringify cate : ", categories);
+                                qResult[0].categories = catArray;
+                                console.log(qResult[0].categories);
+                                //res.send(qResult);
+                                console.log("Response111 object ", qResult[0]);
+
+                            }
+                            else {
+                                return res.status(401).send({ message: 'Bill not found' });
+                            }
+                        }
+                        return res.status(200).send(qResult[0]);
+                    });
+
                 }
                 else {
                     return res.status(401).send({ message: 'Unauthorized,username or  password does not match the current user' });

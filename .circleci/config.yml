@@ -65,7 +65,7 @@ workflows:
     - build
   build-and-deploy:
     jobs:
-    - build:
+    - build_deploy:
         filters:
           branches:
             only:

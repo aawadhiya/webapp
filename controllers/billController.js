@@ -10,8 +10,8 @@ exports.registerBill = function (req, res) {
 
     var token = req.headers['authorization'];
     if (!token) return res.status(401).send({ message: 'No authorization token' });
-    
-   
+
+
     var temp = token.split(' ');
     var basic_auth = Buffer.from(temp[1], 'base64').toString();
     var credential = basic_auth.split(':');
@@ -24,16 +24,34 @@ exports.registerBill = function (req, res) {
         return res.status(400).send({ message: 'Bad Request' });
     }
 
-    if(req.body.id != null  || req.body.created_ts != null || req.body.updated_ts != null)
-    return res.status(400).send({"Bad Request": "id , created_ts, updates_ts are read only, cannot be included when posting data"});
+    if (req.body.id != null || req.body.created_ts != null || req.body.updated_ts != null)
+        return res.status(400).send({ "Bad Request": "id , created_ts, updates_ts are read only, cannot be included when posting data" });
 
-    if(req.body.vendor == null || (req.body.vendor).trim().length < 1)
-    {
+    if (req.body.vendor == null || (req.body.vendor).trim().length < 1) {
         return res.status(400).send({
-                     message: 'Bad Request, Feilds Cannot be null or Empty'
-                 });
+            message: 'Bad Request, Feilds Cannot be null or Empty'
+        });
     }
-    
+    if (req.body.due_date == null || (req.body.due_date).trim().length < 1) {
+        return res.status(400).send({
+            message: 'Bad Request, Feilds Cannot be null or Empty'
+        });
+    }
+    if (req.body.amount_due == null || /^\s*$/.test(req.body.amount_due)) {
+        return res.status(400).send({
+            message: 'Bad Request, Feilds Cannot be null or Empty'
+        });
+    }
+    if (req.body.categories == null || /^\s*$/.test(req.body.categories) || req.body.categories == null) {
+        return res.status(400).send({
+            message: 'Bad Request, Feilds Cannot be null or Empty'
+        });
+    }
+    if (req.body.bill_date == null || /^\s*$/.test(req.body.bill_date)) {
+        return res.status(400).send({
+            message: 'Bad Request, Feilds Cannot be null or Empty'
+        });
+    }
     // if (req.body.vendor == null || (req.body.vendor).trim().length < 1 || req.body.due_date == null || (req.body.due_date).trim().length < 1 ||
     //     req.body.amount_due == null || (req.body.amount_due).trim().length < 1 || req.body.categories == null || req.body.categories.length < 1 ||
     //   (req.body.categories).trim().length < 1 ||  req.body.paymentStatus == null || (req.body.paymentStatus).trim().length < 1) {
@@ -44,7 +62,7 @@ exports.registerBill = function (req, res) {
     if (req.body.amount_due < 0) {
         return res.status(400).send({ message: "Bad Request, min value for amount_due cannot be less than 0.1" });
     }
-   
+
 
     function isNumber(value) {
         return typeof value === 'number' && isFinite(value);
@@ -54,15 +72,18 @@ exports.registerBill = function (req, res) {
         return !isNaN(value) && parseFloat(value) == value && !isNaN(parseFloat(value, 10)) && !(typeof value === 'string');
     }
 
-    if(!isDouble(req.body.amount_due) || req.body.amount_due < 0.1)
-    return res.status(400).send({"Bad Request": "amount due cannot be less than 0.1 "});
+    if (!isDouble(req.body.amount_due) || req.body.amount_due < 0.1)
+        return res.status(400).send({ "Bad Request": "amount due cannot be less than 0.1 " });
 
-    console.log(req.body.paymentStatus);
-    if(req.body.paymentStatus != "paid" || req.body.paymentStatus != "due" || req.body.paymentStatus != "past_due" || req.body.paymentStatus != "no_payment_required" ||
-    req.body.paymentStatus == null || (req.body.paymentStatus).trim() <1 )
-    {
-        return res.status(400).send({"Bad Request": "Invalid Payment status value"});
+    if (/^\s*$/.test(req.body.paymentStatus) || req.body.paymentStatus == null) {
+        return res.status(400).send({ "Bad Request": " payment status can not be left blank" });
     }
+    console.log(req.body.paymentStatus);
+    // if(req.body.paymentStatus != "paid" || req.body.paymentStatus != "due" || req.body.paymentStatus != "past_due" || req.body.paymentStatus != "no_payment_required" ||
+    // req.body.paymentStatus == null || (req.body.paymentStatus).trim() <1 )
+    // {
+    //     return res.status(400).send({"Bad Request": "Invalid Payment status value"});
+    // }
 
     connection.query("SELECT * FROM users WHERE email_address = ?", username, function (error, results) {
         if (error) {
@@ -344,9 +365,11 @@ exports.updateBill = function (req, res) {
     function isDouble(value) {
         return !isNaN(value) && parseFloat(value) == value && !isNaN(parseFloat(value, 10)) && !(typeof value === 'string');
     }
-
-    if(!isDouble(req.body.amount_due) || req.body.amount_due < 0.1)
-    return res.status(400).send({"Bad Request": "amount due cannot be less than 0.1 "});
+    var minValue = 0.1;
+    var amountDue = JSON.parse(req.body.amount_due);
+    console.log("Amount due", amountDue);
+    if (!isDouble(req.body.amount_due) || req.body.amount_due < minValue)
+        return res.status(400).send({ "Bad Request": "amount due cannot be less than 0.1 " });
 
     if ((req.body.vendor == null || (req.body.vendor).trim().length < 1) || (req.body.due_date == null || (req.body.due_date).trim().length < 1) ||
         (req.body.amount_due == null) || (req.body.categories == null || req.body.categories.length < 1) ||

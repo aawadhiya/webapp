@@ -10,26 +10,8 @@ exports.registerBill = function (req, res) {
 
     var token = req.headers['authorization'];
     if (!token) return res.status(401).send({ message: 'No authorization token' });
-
-
-    if ((req.body.vendor == null || (req.body.vendor).trim().length < 1) || (req.body.due_date == null || (req.body.due_date).trim().length < 1) ||
-        (req.body.amount_due == null) || (req.body.categories == null || req.body.categories.length < 1) ||
-        (req.body.paymentStatus == null || (req.body.paymentStatus).trim().length < 1)) {
-        return res.status(400).send({
-            message: 'Bad Request, Feilds Cannot be null or Empty'
-        })
-    };
-    if(req.body.amount_due < 0){
-        return res.status(400).send({message: "Bad Request, min value for amount_due cannot be less than 0.1"});
-    }
-
-    function isNumber(value) {
-        return typeof value === 'number' && isFinite(value);
-      }
     
-      function isDouble(value) {
-        return !isNaN(value) && parseFloat(value) == value && !isNaN(parseFloat(value, 10)) && !(typeof value === 'string');
-      }
+   
     var temp = token.split(' ');
     var basic_auth = Buffer.from(temp[1], 'base64').toString();
     var credential = basic_auth.split(':');
@@ -40,6 +22,46 @@ exports.registerBill = function (req, res) {
 
     if (username == null || password == null) {
         return res.status(400).send({ message: 'Bad Request' });
+    }
+
+    if(req.body.id != null  || req.body.created_ts != null || req.body.updated_ts != null)
+    return res.status(400).send({"Bad Request": "id , created_ts, updates_ts are read only, cannot be included when posting data"});
+
+    if(req.body.vendor == null || (req.body.vendor).trim().length < 1)
+    {
+        return res.status(400).send({
+                     message: 'Bad Request, Feilds Cannot be null or Empty'
+                 });
+    }
+    
+    // if (req.body.vendor == null || (req.body.vendor).trim().length < 1 || req.body.due_date == null || (req.body.due_date).trim().length < 1 ||
+    //     req.body.amount_due == null || (req.body.amount_due).trim().length < 1 || req.body.categories == null || req.body.categories.length < 1 ||
+    //   (req.body.categories).trim().length < 1 ||  req.body.paymentStatus == null || (req.body.paymentStatus).trim().length < 1) {
+    //     return res.status(400).send({
+    //         message: 'Bad Request, Feilds Cannot be null or Empty'
+    //     });
+    // }
+    if (req.body.amount_due < 0) {
+        return res.status(400).send({ message: "Bad Request, min value for amount_due cannot be less than 0.1" });
+    }
+   
+
+    function isNumber(value) {
+        return typeof value === 'number' && isFinite(value);
+    }
+
+    function isDouble(value) {
+        return !isNaN(value) && parseFloat(value) == value && !isNaN(parseFloat(value, 10)) && !(typeof value === 'string');
+    }
+
+    if(!isDouble(req.body.amount_due) || req.body.amount_due < 0.1)
+    return res.status(400).send({"Bad Request": "amount due cannot be less than 0.1 "});
+
+    console.log(req.body.paymentStatus);
+    if(req.body.paymentStatus != "paid" || req.body.paymentStatus != "due" || req.body.paymentStatus != "past_due" || req.body.paymentStatus != "no_payment_required" ||
+    req.body.paymentStatus == null || (req.body.paymentStatus).trim() <1 )
+    {
+        return res.status(400).send({"Bad Request": "Invalid Payment status value"});
     }
 
     connection.query("SELECT * FROM users WHERE email_address = ?", username, function (error, results) {
@@ -202,7 +224,7 @@ exports.getBillById = function (req, res) {
                     });
                 }
                 else {
-                    return res.status(401).send({ message: 'Unauthorized, password does not match the current user' });
+                    return res.status(401).send({ message: 'Unauthorized,username or  password does not match the current user' });
                 }
             }
             else {
@@ -241,37 +263,36 @@ exports.getBills = function (req, res) {
             return res.status(401).send({ message: 'Unauthorized' });
         } else {
             if (results.length > 0) {
-                if (bcrypt.compareSync(password, results[0].password)) {                                    
+                if (bcrypt.compareSync(password, results[0].password)) {
 
-                    connection.query("SELECT * FROM bill where owner_id =?",results[0].id, function (error, qResult) {
+                    connection.query("SELECT * FROM bill where owner_id =?", results[0].id, function (error, qResult) {
                         if (error) {
                             return res.status(404).send({ message: 'Bill Not Found' });
                         } else {
                             var categories = [];
                             if (qResult.length > 0) {
                                 var totalBills = qResult.length;
-                                var billArray =[];
-                                for(var i =0; i< totalBills; i++)
-                                {
+                                var billArray = [];
+                                for (var i = 0; i < totalBills; i++) {
                                     var dueDate1 = qResult[0].due_date.toString().substring(0, 10);
-                                console.log("due date..", qResult[0].due_date);
-                                var catArray = [];
-                                var categories = JSON.stringify(qResult[i]['categories']);
-                                var catList = categories.split(',');
-                                console.log("CATList.....", catList);
-                                for (var j = 0; j < catList.length; j++) {
-                                    catArray[j] = catList[j].replace(/[\\"\[\]]/g, '');
+                                    console.log("due date..", qResult[0].due_date);
+                                    var catArray = [];
+                                    var categories = JSON.stringify(qResult[i]['categories']);
+                                    var catList = categories.split(',');
+                                    console.log("CATList.....", catList);
+                                    for (var j = 0; j < catList.length; j++) {
+                                        catArray[j] = catList[j].replace(/[\\"\[\]]/g, '');
+                                    }
+
+                                    console.log("CAT.....", catArray);
+                                    console.log("stringify cate : ", JSON.stringify(qResult[i]['categories']));
+                                    console.log("stringify cate : ", qs.parse(qResult[i].categories));
+                                    console.log("stringify cate : ", categories);
+                                    qResult[i].categories = catArray;
+                                    console.log(qResult[0].categories);
+                                    billArray[i] = qResult[i];
                                 }
 
-                                console.log("CAT.....", catArray);
-                                console.log("stringify cate : ", JSON.stringify(qResult[i]['categories']));
-                                console.log("stringify cate : ", qs.parse(qResult[i].categories));
-                                console.log("stringify cate : ", categories);
-                                qResult[i].categories = catArray;
-                                console.log(qResult[0].categories);
-                                billArray[i] = qResult[i];
-                                }
-                                
                                 //res.send(qResult);
                                 console.log("Response111 object ", qResult[0]);
 
@@ -284,7 +305,7 @@ exports.getBills = function (req, res) {
                     });
                 }
                 else {
-                    return res.status(401).send({ message: 'Unauthorized, password does not match the current user' });
+                    return res.status(401).send({ message: 'Unauthorized,username or password does not match the current user' });
                 }
             }
             else {
@@ -299,6 +320,12 @@ exports.getBills = function (req, res) {
 exports.updateBill = function (req, res) {
 
     var today = new Date();
+    let date = ("0" + today.getDate()).slice(-2);
+    let month = ("0" + (today.getMonth() + 1)).slice(-2);
+    let year = today.getFullYear();
+    var dateOnly = year + "-" + month + "-" + date;
+    console.log(year + "-" + month + "-" + date);
+    console.log("Today date part..", date);
     console.log("today value..", today);
     var token = req.headers['authorization'];
 
@@ -313,6 +340,13 @@ exports.updateBill = function (req, res) {
     var billId = req.params['id'];
 
     if (username == null || password == null) return res.status(400).send({ message: 'Bad Request, Password and Username cannot be null' });
+
+    function isDouble(value) {
+        return !isNaN(value) && parseFloat(value) == value && !isNaN(parseFloat(value, 10)) && !(typeof value === 'string');
+    }
+
+    if(!isDouble(req.body.amount_due) || req.body.amount_due < 0.1)
+    return res.status(400).send({"Bad Request": "amount due cannot be less than 0.1 "});
 
     if ((req.body.vendor == null || (req.body.vendor).trim().length < 1) || (req.body.due_date == null || (req.body.due_date).trim().length < 1) ||
         (req.body.amount_due == null) || (req.body.categories == null || req.body.categories.length < 1) ||
@@ -397,7 +431,7 @@ exports.updateBill = function (req, res) {
 
 
 // Delete bill.......
-exports.deleteBill = function(req, res){
+exports.deleteBill = function (req, res) {
 
     var token = req.headers['authorization'];
     // Basic <Base64 encoded username and password>
@@ -428,30 +462,29 @@ exports.deleteBill = function(req, res){
                     console.log("Bill id....", req.params['id']);
 
                     var billId = req.params['id'];
-                    connection.query("SELECT * FROM bill WHERE id = ?", billId, function(error, result){
-                        if(error){
-                            return res.status(404).send({"Bad Request": "No bill found for this Id"});
+                    connection.query("SELECT * FROM bill WHERE id = ?", billId, function (error, result) {
+                        if (error) {
+                            return res.status(404).send({ "Bad Request": "No bill found for this Id" });
                         }
-                        else{
-                            if(result.length > 0)
-                            {
+                        else {
+                            if (result.length > 0) {
                                 connection.query("DELETE FROM bill where id =?", billId, function (error, qResult) {
                                     if (error) {
                                         return res.status(404).send({ message: 'Bill Not Found' });
                                     } else {
                                         //console.log("delete result", qResult[0]);
-                                        return res.status(204).send({message : "No content"});
-                                        }                       
-                                   
+                                        return res.status(204).send({ message: "No content" });
+                                    }
+
                                 });
                             }
-                            else{
-                                return res.status(400).send({"Bad Request": "not found"});
+                            else {
+                                return res.status(400).send({ "Bad Request": "not found" });
                             }
-                            
+
                         }
                     });
-                    
+
                 }
                 else {
                     return res.status(401).send({ message: 'Unauthorized, password does not match the current user' });

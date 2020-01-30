@@ -26,9 +26,9 @@ jobs:
             done
             echo Failed waiting for MySQL && exit 1
       - run:
-          name: Gradle build
+          name: npm build
           command: |
-            echo "Hello World!"
+            npm install
       - run:
           name: Install MySQL CLI; Import dummy data; run an example query
           command: |

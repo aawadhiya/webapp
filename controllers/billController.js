@@ -3,6 +3,10 @@ var mysql = require('mysql');
 var connection = require('../models/user');
 const uuidv1 = require('uuid/v1');
 const qs = require('querystring');
+var fs = require('fs');
+var multer = require('multer')
+var upload = multer({ dest: 'tmp/', errorHandling: 'manual' })
+
 
 // POST for bill...
 exports.registerBill = function (req, res) {
@@ -118,6 +122,7 @@ exports.registerBill = function (req, res) {
                         amount_due: req.body.amount_due,
                         categories: categoryString,
                         paymentStatus: req.body.paymentStatus.trim()
+
                     }
 
                     connection.query('INSERT INTO bill SET ?', bill, function (error, result1) {
@@ -156,6 +161,7 @@ exports.registerBill = function (req, res) {
                                         //res.send(qResult);
                                         console.log("Response111 object ", qResult[0]);
                                         // res.send(qResult[0]);
+                                        qResult[0].attachment = {};
                                     }
 
                                 }
@@ -177,15 +183,12 @@ exports.registerBill = function (req, res) {
     });
 };
 
-
+// GET by ID..
 exports.getBillById = function (req, res) {
 
     var token = req.headers['authorization'];
     // Basic <Base64 encoded username and password>
-    console.log("request :-", req);
-    console.log("request header:-", req.headers);
-    console.log("token value:", token);
-    console.log("request body is:", req.body);
+
     if (!token) return res.status(401).send({ message: 'unauthorized' });
 
     var temp = token.split(' ');
@@ -199,6 +202,8 @@ exports.getBillById = function (req, res) {
     if (username == null || password == null) {
         return res.status(400).send({ message: 'Bad Request' });
     }
+    var responseData;
+    console.log("initial value..", responseData);
     connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results) {
         if (error) {
             console.log(error);
@@ -212,7 +217,7 @@ exports.getBillById = function (req, res) {
                     console.log("owner id is..", results[0].id);
                     var ownerId = results[0].id;
                     var vals = [billId, ownerId];
-                   
+
                     connection.query("SELECT * FROM bill where id =? and owner_id=?", vals, function (error, qResult) {
                         if (error) {
                             return res.status(401).send({ message: 'unauthorized' });
@@ -220,31 +225,51 @@ exports.getBillById = function (req, res) {
                             var categories = [];
                             if (qResult.length > 0) {
 
-                                var dueDate1 = qResult[0].due_date.toString().substring(0, 10);
-                                console.log("due date..", qResult[0].due_date);
-                                var catArray = [];
-                                var categories = JSON.stringify(qResult[0]['categories']);
-                                var catList = categories.split(',');
-                                console.log("CATList.....", catList);
-                                for (var i = 0; i < catList.length; i++) {
-                                    catArray[i] = catList[i].replace(/[\\"\[\]]/g, '');
-                                }
+                                connection.query('SELECT * FROM File WHERE bill_id = ?', billId, function (error, fileResult) {
+                                    if (error) {
+                                        console.log("error in file query");
+                                    }
+                                    if (fileResult.length < 1) {
+                                        qResult[0]['attachment'] = {};
+                                    }
+                                    else {
+                                        qResult[0]['attachment'] = fileResult[0];
+                                    }
 
-                                console.log("CAT.....", catArray);
-                                console.log("stringify cate : ", JSON.stringify(qResult[0]['categories']));
-                                console.log("stringify cate : ", qs.parse(qResult[0].categories));
-                                console.log("stringify cate : ", categories);
-                                qResult[0].categories = catArray;
-                                console.log(qResult[0].categories);
-                                //res.send(qResult);
-                                console.log("Response111 object ", qResult[0]);
+                                    console.log("value of qres after..", qResult[0]);
+                                    var dueDate1 = qResult[0].due_date.toString().substring(0, 10);
+                                    console.log("due date..", qResult[0].due_date);
+                                    var catArray = [];
+                                    var categories = JSON.stringify(qResult[0]['categories']);
+                                    var catList = categories.split(',');
+                                    console.log("CATList.....", catList);
+                                    for (var i = 0; i < catList.length; i++) {
+                                        catArray[i] = catList[i].replace(/[\\"\[\]]/g, '');
+                                    }
 
+                                    console.log("CAT.....", catArray);
+                                    console.log("stringify cate : ", JSON.stringify(qResult[0]['categories']));
+                                    console.log("stringify cate : ", qs.parse(qResult[0].categories));
+                                    console.log("stringify cate : ", categories);
+                                    qResult[0].categories = catArray;
+                                    console.log(qResult[0].categories);
+                                    //res.send(qResult);
+                                    console.log("Response111 object ", qResult[0]);
+                                    responseData = qResult[0];
+                                    // responseData['attachment'] = attach;
+
+                                    console.log("final value..", qResult[0]['attachment']);
+                                    console.log("res sent ..", responseData);
+                                    return res.status(200).send(responseData);
+                                });
                             }
                             else {
                                 return res.status(401).send({ message: 'Bill not found' });
                             }
+
                         }
-                        return res.status(200).send(qResult[0]);
+
+
                     });
 
                 }
@@ -296,37 +321,51 @@ exports.getBills = function (req, res) {
                         } else {
                             var categories = [];
                             if (qResult.length > 0) {
-                                var totalBills = qResult.length;
-                                var billArray = [];
-                                for (var i = 0; i < totalBills; i++) {
-                                    var dueDate1 = qResult[0].due_date.toString().substring(0, 10);
-                                    console.log("due date..", qResult[0].due_date);
-                                    var catArray = [];
-                                    var categories = JSON.stringify(qResult[i]['categories']);
-                                    var catList = categories.split(',');
-                                    console.log("CATList.....", catList);
-                                    for (var j = 0; j < catList.length; j++) {
-                                        catArray[j] = catList[j].replace(/[\\"\[\]]/g, '');
+                                var billId = qResult[0].id;
+                                connection.query('SELECT * FROM File WHERE bill_id = ?', billId, function (error, fileResult) {
+                                    if (error) {
+                                        console.log("error in file query");
+                                    }
+                                    if (fileResult.length < 1) {
+                                        qResult[0]['attachment'] = {};
+                                    }
+                                    else {
+                                        qResult[0]['attachment'] = fileResult[0];
                                     }
 
-                                    console.log("CAT.....", catArray);
-                                    console.log("stringify cate : ", JSON.stringify(qResult[i]['categories']));
-                                    console.log("stringify cate : ", qs.parse(qResult[i].categories));
-                                    console.log("stringify cate : ", categories);
-                                    qResult[i].categories = catArray;
-                                    console.log(qResult[0].categories);
-                                    billArray[i] = qResult[i];
-                                }
+                                    var totalBills = qResult.length;
+                                    var billArray = [];
+                                    for (var i = 0; i < totalBills; i++) {
+                                        var billId = qResult[i].id;
 
-                                //res.send(qResult);
-                                console.log("Response111 object ", qResult[0]);
+                                        var dueDate1 = qResult[0].due_date.toString().substring(0, 10);
+                                        console.log("due date..", qResult[0].due_date);
+                                        var catArray = [];
+                                        var categories = JSON.stringify(qResult[i]['categories']);
+                                        var catList = categories.split(',');
+                                        console.log("CATList.....", catList);
+                                        for (var j = 0; j < catList.length; j++) {
+                                            catArray[j] = catList[j].replace(/[\\"\[\]]/g, '');
+                                        }
+
+                                        console.log("CAT.....", catArray);
+                                        console.log("stringify cate : ", JSON.stringify(qResult[i]['categories']));
+                                        console.log("stringify cate : ", qs.parse(qResult[i].categories));
+                                        console.log("stringify cate : ", categories);
+                                        qResult[i].categories = catArray;
+                                        console.log(qResult[0].categories);
+                                        billArray[i] = qResult[i];
+
+                                    }
+                                    return res.status(200).send(qResult);
+                                });
 
                             }
                             else {
                                 return res.status(404).send({ message: 'Bill not found' });
                             }
                         }
-                        return res.status(200).send(qResult);
+
                     });
                 }
                 else {
@@ -339,6 +378,8 @@ exports.getBills = function (req, res) {
         }
     });
 }
+
+
 
 // Update bill ....
 exports.updateBill = function (req, res) {
@@ -467,11 +508,7 @@ exports.updateBill = function (req, res) {
 exports.deleteBill = function (req, res) {
 
     var token = req.headers['authorization'];
-    // Basic <Base64 encoded username and password>
-    console.log("request :-", req);
-    console.log("request header:-", req.headers);
-    console.log("token value:", token);
-    console.log("request body is:", req.body);
+    // Basic <Base64 encoded username and password>   
     if (!token) return res.status(401).send({ message: 'unauthorized' });
 
     var temp = token.split(' ');
@@ -487,7 +524,7 @@ exports.deleteBill = function (req, res) {
     }
     connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results) {
         if (error) {
-            console.log(error);
+            // console.log(error);
             return res.status(401).send({ message: 'Unauthorized' });
         } else {
             if (results.length > 0) {
@@ -501,23 +538,54 @@ exports.deleteBill = function (req, res) {
                         }
                         else {
                             if (result.length > 0) {
-                                connection.query("DELETE FROM bill where id =?", billId, function (error, qResult) {
+                                connection.query('select * FROM File WHERE bill_id = ?', billId, function (error, deleteResult) {
                                     if (error) {
-                                        return res.status(404).send({ message: 'Bill Not Found' });
-                                    } else {
-                                        //console.log("delete result", qResult[0]);
-                                        return res.status(204).send({ message: "No content" });
+                                        console.log("error in delete filein delete bill");
                                     }
+                                    if (deleteResult.length < 1) {
+                                        console.log("No file for bill");
+                                        console.log(deleteResult);
+                                    }
+                                    else {
+                                        var fileName = deleteResult[0].filename;
+                                        connection.query("DELETE FROM File WHERE bill_id = ?", billId, function (error, delResult) {
+                                            if (error) {
+                                                console.log("error in deleteing file in deleteBill");
 
+                                            }
+                                            else {
+                                                console.log("successfully delete file for deleteBill");
+                                                connection.query("DELETE FROM bill where id =?", billId, function (error, qResult) {
+                                                    if (error) {
+                                                        console.log("delete error..", error);
+                                                        return res.status(404).send({ message: 'Bill Not Found1' });
+                                                    } else {
+                                                        //console.log("delete result", qResult[0]);
+                                                        console.log("fileName is..", fileName);
+
+
+                                                        fs.unlink("./tmp/" + fileName, (err) => {
+                                                            if (err) {
+                                                                console.log("failed to delete local image:" + err);
+                                                            } else {
+                                                                console.log('successfully deleted local image');
+                                                            }
+                                                        });
+                                                        return res.status(204).send({ message: "No content" });
+                                                    }
+
+                                                });
+                                            }
+                                        })
+                                    }
                                 });
+
                             }
                             else {
                                 return res.status(400).send({ "Bad Request": "not found" });
                             }
-
                         }
                     });
-
                 }
                 else {
                     return res.status(401).send({ message: 'Unauthorized, password does not match the current user' });

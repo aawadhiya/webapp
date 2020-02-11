@@ -35,34 +35,42 @@ connnection.connect(function (err) {
     "`amount_due` double NOT NULL," +
     "`categories` varchar(255)  COLLATE utf8_unicode_ci NOT NULL," +
     "`paymentStatus` varchar(255) COLLATE utf8_unicode_ci NOT NULL," +
+    "`attachment` varchar(10000) COLLATE utf8_unicode_ci ," +
     "FOREIGN KEY(`owner_id`) REFERENCES `users`( `id`)," +
     "PRIMARY KEY (`id`)" +  
     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
 
 
-    // var categorysql = "CREATE TABLE IF NOT EXISTS `mydb`.`category` (" +
-    // "`id` varchar(100) NOT NULL ," +
-    // "`categoryName` varchar(150) COLLATE utf8_unicode_ci  NOT NULL," +
-    // "`bill_id` varchar(100)  NOT NULL," +
-    // "FOREIGN KEY(`bill_id`) REFERENCES `bill`( `id`)," +
-    // "PRIMARY KEY (`id`)" +  
-    // ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
+    var filesql = "CREATE TABLE IF NOT EXISTS `mydb`.`File` (" +
+    "`id` varchar(100) NOT NULL ," +
+    "`file_name` varchar(150) COLLATE utf8_unicode_ci  NOT NULL," +
+    "`url` varchar(100)  NOT NULL," +
+    "`upload_date` DATE NOT NULL," +
+    "`bill_id` varchar(100) NOT NULL," +
+    "`filename` varchar(100) NOT NULL," +
+    "`mimetype` varchar(100) NOT NULL," +
+    "`size` double NOT NULL," +
+    "`encoding` varchar(100) NOT NULL," +
+    "FOREIGN KEY(`bill_id`) REFERENCES `bill`( `id`)," +
+    "PRIMARY KEY (`id`)" +  
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
 
     connnection.query(billsql, function (err, result) {
       if (err) console.log("allready exist");
       console.log("bill table created");
+    });   
+    connnection.query(filesql, function (err, result) {
+      if (err) console.log("allready exist file table");
+      console.log("File table created");
     });
-
-    // connnection.query(categorysql, function (err, result) {
-    //   if (err) console.log("allready exist");
-    //   console.log("category table created");
-    // });
 
   connnection.query(usersql, function (err, result) {
     if (err) console.log("allready exist");
     console.log("User table created");
   });
 });
+
+
 
 module.exports = connnection;
 

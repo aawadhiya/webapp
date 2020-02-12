@@ -62,3 +62,4 @@ Body Content: {"first_name": "test", "last_name":"test", "password":"password"}
 mocha 
 
 ## CI using circleci
+Running ci

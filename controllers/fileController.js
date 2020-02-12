@@ -252,11 +252,12 @@ exports.getFile = function (req, res) {
 
     var username = credential[0];
     var password = credential[1];
-
-
+    var billId = req.params['billId'];
+    var fileId = req.params['fileId'];
     if (username == null || password == null) {
         return res.status(400).send({ message: 'Bad Request' });
     }
+    console.log("username is...", username);
     connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results, fields) {
         if (error) {
             return res.status(400).send({ message: 'Bad Request' });
@@ -272,36 +273,51 @@ exports.getFile = function (req, res) {
         }
         else {
             // logger.info("Get bill Api");
-
-            getFileCounter = getFileCounter + 1;
-            //  client.count("Get file API counter",getFileCounter);
-            var fileId = req.params['fileId'];
-            var billId = req.params['billId'];
-            console.log("req param id is...", req.params);
-            console.log("File id is...", fileId);
-            console.log("Bill id is...", billId);
-
-            var insert = [fileId, billId]
-
-            var resultsSelectqlquerry = mysql.format('SELECT * FROM File where id= ? and bill_id=? ', insert);
-            connection.query(resultsSelectqlquerry, function (error, results, fields) {
+            var authArray = [billId, results[0].id];
+            console.log("Auth array..", authArray);
+            connection.query("SELECT * FROM bill WHERE id = ? AND owner_id = ?", authArray, function (error, authResult) {
                 if (error) {
-                    return res.status(400).send({ message: 'Bad Request' });
+                    return res.status(401).send({ message: "unauthorized, cannot access other user file" });
                 }
-                if (results.length < 0 || typeof results[0] === 'undefined') {
-                    return res.status(404).send({ message: 'Not Found, File not found' });
-
+                if(authResult.length <= 0 || authResult == null)
+                {
+                    return res.status(401).send({ message: "unauthorized, cannot access other user file" });
                 }
                 else {
-                    console.log("result object for response..", results[0])
-                    res.status(201).send({
-                        "file_name": results[0].file_name,
-                        "id": results[0].id,
-                        "url": results[0].url,
-                        "upload_date": results[0].upload_date
+                    console.log("authresultt", authResult);
+                    getFileCounter = getFileCounter + 1;
+                    //  client.count("Get file API counter",getFileCounter);
+                    
+                    // var billId = req.params['billId'];
+                    console.log("req param id is...", req.params);
+                    console.log("File id is...", fileId);
+                    console.log("Bill id is...", billId);
+
+                    var insert = [fileId, billId]
+
+                    var resultsSelectqlquerry = mysql.format('SELECT * FROM File where id= ? and bill_id=? ', insert);
+                    connection.query(resultsSelectqlquerry, function (error, results, fields) {
+                        if (error) {
+                            return res.status(400).send({ message: 'Bad Request' });
+                        }
+                        if (results.length < 0 || typeof results[0] === 'undefined') {
+                            return res.status(404).send({ message: 'Not Found, File not found' });
+
+                        }
+                        else {
+                            console.log("result object for response..", results[0])
+                            res.status(201).send({
+                                "file_name": results[0].file_name,
+                                "id": results[0].id,
+                                "url": results[0].url,
+                                "upload_date": results[0].upload_date
+                            });
+                        }
                     });
                 }
             });
+
+
         }
     })
 };

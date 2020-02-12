@@ -42,17 +42,17 @@ jobs:
       - run: npm install
       - run: npm test   
 
-  build_deploy:
-    filters:
-     branches:
-      only:
-        -master
-    docker:
-      - image: circleci/node:13.6.0
-    steps:
-      - checkout # check out source code to working directory
-      - run: npm install
-      - run: npm test   
+  # build_deploy:
+  #   filters:
+  #    branches:
+  #     only:
+  #       -master
+  #   docker:
+  #     - image: circleci/node:13.6.0
+  #   steps:
+  #     - checkout # check out source code to working directory
+  #     - run: npm install
+  #     - run: npm test   
 
 workflows:
   version: 2
@@ -62,12 +62,18 @@ workflows:
 
   build-workflow:
     jobs:
-    - build
-  build-and-deploy:
-    jobs:
-    - build_deploy:
+    - build:
         filters:
           branches:
             only:
               -master
+
+  
+  # build-and-deploy:
+  #   jobs:
+  #   - build_deploy:
+  #       filters:
+  #         branches:
+  #           only:
+  #             -master
       

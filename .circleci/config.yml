@@ -34,7 +34,15 @@ jobs:
           command: |
             sudo apt-get install mysql-client
             mysql -h 127.0.0.1 -u dbuser -pMaster@123 --execute="SHOW DATABASES"
-  build:
+  build:    
+    docker:
+      - image: circleci/node:13.6.0
+    steps:
+      - checkout # check out source code to working directory
+      - run: npm install
+      - run: npm test   
+
+  build_deploy:
     filters:
      branches:
       only:
@@ -46,18 +54,6 @@ jobs:
       - run: npm install
       - run: npm test   
 
-  # build_deploy:
-  #   filters:
-  #    branches:
-  #     only:
-  #       -master
-  #   docker:
-  #     - image: circleci/node:13.6.0
-  #   steps:
-  #     - checkout # check out source code to working directory
-  #     - run: npm install
-  #     - run: npm test   
-
 workflows:
   version: 2
   pr-check-workflow:
@@ -66,18 +62,15 @@ workflows:
 
   build-workflow:
     jobs:
-    - build:
+    - build
+        
+
+  
+  build-and-deploy:
+    jobs:
+    - build_deploy:
         filters:
           branches:
             only:
               -master
-
-  
-  # build-and-deploy:
-  #   jobs:
-  #   - build_deploy:
-  #       filters:
-  #         branches:
-  #           only:
-  #             -master
       

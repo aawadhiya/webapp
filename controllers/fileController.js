@@ -63,7 +63,8 @@ exports.addFile = function (req, res, next) {
 
                     return res.status(404).send({ message: 'Not Found, Bill not found for this user' });
                 }
-                else {                     
+                else {    
+                    var attachment = results[0].attachment;                 
                     console.log(req.file);
                     console.log("----")
                     var file_name = req.file.originalname;
@@ -119,6 +120,19 @@ exports.addFile = function (req, res, next) {
                                     }
                                     else {
                                         console.log("response resulttt", result1[0]);
+                                        var updateSql = "UPDATE bill SET attachment = ? WHERE id = ?";
+                                        var billVals = [JSON.stringify(result1[0]), billId];
+                                        var updateResult = mysql.format(updateSql, billVals);
+                                       
+                                        connection.query(updateResult, function(error, billResult){
+                                            if(error){
+                                                console.log("error in saving file to bill..", error);
+                                            }
+                                            else{
+                                                console.log("adding file to bill..", result1[0]);
+                                                //attachment = result1[0];
+                                            }
+                                        })
                                         res.status(201).send({
                                             "file_name": result1[0].file_name,
                                             "id": result1[0].id,

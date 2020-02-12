@@ -337,7 +337,13 @@ exports.getBills = function (req, res) {
                                         qResult[0]['attachment'] = {};
                                     }
                                     else {
-                                        qResult[0]['attachment'] = fileResult[0];
+                                        var file = {
+                                            id: fileResult[0].id,
+                                            file_name: fileResult[0].file_name,
+                                            url: fileResult[0].url,                                            
+                                            upload_date: fileResult[0].upload_date       
+                                        }
+                                        qResult[0]['attachment'] = file;
                                     }
 
                                     var totalBills = qResult.length;

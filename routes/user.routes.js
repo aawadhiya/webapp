@@ -19,7 +19,7 @@ router.delete('/bill/:id', billcontroller.deleteBill);
 router.post('/bill/:id/file', upload.single('fileUpload'), function (err, req, res, next) {
     console.error(err.stack)
     res.status(400).send({meesage:'Bad Request ,Formdata is not correct! use fileUpload as key'})
-  }  ,filecontroller.addFile);
+  } ,filecontroller.addFile );
 //router.post('/bill/:id/file', filecontroller.addFile);
 
   router.get('/bill/:billId/file/:fileId', filecontroller.getFile);

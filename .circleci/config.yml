@@ -35,6 +35,10 @@ jobs:
             sudo apt-get install mysql-client
             mysql -h 127.0.0.1 -u dbuser -pMaster@123 --execute="SHOW DATABASES"
   build:
+    filters:
+     branches:
+      only:
+        -master
     docker:
       - image: circleci/node:13.6.0
     steps:

@@ -19,7 +19,7 @@ exports.register = function (req, res) {
 
     if (!schema.validate(req.body.password)) { return res.status(400).send({ message: 'Bad Request, try another Password' }) };
 
-    console.log("password", req.password);
+   
     var salt = bcrypt.genSaltSync(10);
     var hash = bcrypt.hashSync(req.body.password, salt);
     var today = new Date();
@@ -40,6 +40,9 @@ exports.register = function (req, res) {
     var insert = [user.email_address];
     var result = mysql.format(selectSql, insert);
     connection.query(result, function (error, result, fields) {
+        console.log("ec2 error", result);
+        console.log("ec2 error", result[0]);
+        console.log("ec2 error", result[0].count);
         var count = result[0].Count;
         console.log("------------" + count)
         if (count >= 1) {

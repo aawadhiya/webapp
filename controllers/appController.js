@@ -36,19 +36,18 @@ exports.register = function (req, res) {
         account_modified: today
     }
     // Insert data in the database table...
-    var selectSql = "SELECT count(email_address) AS Count  FROM users WHERE email_address = ?";
+    var selectSql = "SELECT count(email_address) AS Count  FROM csye6225.users WHERE email_address = ?";
     var insert = [user.email_address];
     var result = mysql.format(selectSql, insert);
     connection.query(result, function (error, result, fields) {
-        console.log("ec2 error", result);
-        console.log("ec2 error", result[0]);
-        console.log("ec2 error", result[0].count);
+   
+        console.log("------------" )
+
         var count = result[0].Count;
-        console.log("------------" + count)
         if (count >= 1) {
             return res.status(400).send({ message: 'Bad Request, Email already exist, try other email' });
         }
-        connection.query('INSERT INTO users SET ?', user, function (error, results, fields) {
+        connection.query('INSERT INTO csye6225.users SET ?', user, function (error, results, fields) {
 
             if (error) {
                 console.log("Bad Request, cannot insert user", error);
@@ -58,7 +57,7 @@ exports.register = function (req, res) {
                 })
             }
         });
-        var sql = 'SELECT id , first_name, last_name, email_address, account_created, account_modified  FROM users WHERE email_address = ?';
+        var sql = 'SELECT id , first_name, last_name, email_address, account_created, account_modified  FROM csye6225.users WHERE email_address = ?';
         var insert = [user.email_address]
         var result = mysql.format(sql, insert);
 
@@ -101,7 +100,7 @@ exports.login = function (req, res) {
         return res.status(400).send({ message: 'Bad Request' });
     }
     console.log("username" + username, "password " + password);
-    connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results) {
+    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results) {
         if (error) {
             console.log(error);
             return res.status(404).send({ message: 'Not found, email address does not exist' });
@@ -152,7 +151,7 @@ exports.update = function (req, res) {
     //update....
     if (username == null || username == "" || password == null || password == "") return res.status(400).send({ message: 'Bad Request, provide proper credentials' });
 
-    connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results) {
+    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results) {
         if (error) {
             console.log("Error:", error);
             return res.status(404).send({ message: 'Not found, email not found for this user' });
@@ -170,7 +169,7 @@ exports.update = function (req, res) {
                         if (!schema.validate(req.body.password)) { return res.status(400).send({ message: 'Bad Request, try another Password' }) };
                         var salt = bcrypt.genSaltSync(10);
                         var hash = bcrypt.hashSync(req.body.password, salt);
-                        connection.query('UPDATE users SET first_name = ?, last_name = ?, password = ?, account_modified = ? WHERE email_address = ?',
+                        connection.query('UPDATE csye6225.users SET first_name = ?, last_name = ?, password = ?, account_modified = ? WHERE email_address = ?',
                             [req.body.first_name, req.body.last_name, hash, today, username], function (error, results) {
                                 if (error) {
                                     return res.status(400).send({ "failed": "Bad Request" });

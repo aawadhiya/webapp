@@ -1,13 +1,15 @@
 // connect to the database....
 
 var mysql = require('mysql');
+require('dotenv').config()
 
+console.log("env file", process.env);
 var connnection = mysql.createConnection({
-  host: "csye6225-spring2020.ckyosezxkk0m.us-east-1.rds.amazonaws.com",
-  user: "dbuser",
-  password: "csye6225password",
-  port     : "3306",
-  database: "csye6225"
+  host: process.env.host,
+  user: process.env.user,
+  password: process.env.DBpassword,
+  port     : process.env.port,
+  database: process.env.database
 });
 
 connnection.connect(function (err) {

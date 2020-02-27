@@ -2,21 +2,29 @@ var bcrypt = require('bcrypt');
 var mysql = require('mysql');
 var connection = require('../models/user');
 const uuidv1 = require('uuid/v1');
+const aws = require('aws-sdk');
+require('dotenv').config();
+
 var fs = require('fs');
+var s3 = new aws.S3({
+    accessKeyId: process.env.accessKeyId,
+    secretAccessKey: process.env.secretAccessKey
+});
 var today = new Date();
 var addFileCounter = 0;
 var getFileCounter = 0;
 var deleteFileCounter = 0;
 var multer = require('multer')
 var upload = multer({ dest: 'tmp/', errorHandling: 'manual' })
-
+var datbaseStart = new Date();
 
 // POST
 exports.addFile = function (req, res, next) {
     var filename = req.file.filename;
-    // var appiStart = new Date();  
+    var apiStart = new Date();
+    var today = new Date();
     addFileCounter = addFileCounter + 1;
-    //client.count("Add file API counter",addFileCounter);
+
 
     var billId = req.params['id'];
     var token = req.headers['authorization'];
@@ -32,13 +40,6 @@ exports.addFile = function (req, res, next) {
 
 
     if (username == null || password == null) {
-        fs.unlink("./tmp/" + filename, (err) => {
-            if (err) {
-                console.log("failed to delete local image:" + err);
-            } else {
-                console.log('successfully deleted local image');
-            }
-        });
         return res.status(400).send({ message: 'Bad Request' });
     }
 
@@ -49,34 +50,12 @@ exports.addFile = function (req, res, next) {
         connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results, fields) {
             var userid = "";
             if (error) {
-                fs.unlink("./tmp/" + filename, (err) => {
-                    if (err) {
-                        console.log("failed to delete local image:" + err);
-                    } else {
-                        console.log('successfully deleted local image');
-                    }
-                });
                 return res.status(400).send({ message: 'Bad Request' });
             }
             if (results.length < 0 || typeof results[0] === 'undefined') {
-                fs.unlink("./tmp/" + filename, (err) => {
-                    if (err) {
-                        console.log("failed to delete local image:" + err);
-                    } else {
-                        console.log('successfully deleted local image');
-                    }
-                });
                 return res.status(404).send({ message: 'Not Found, user not found' });
-
             }
             if (!bcrypt.compareSync(password, results[0].password)) {
-                fs.unlink("./tmp/" + filename, (err) => {
-                    if (err) {
-                        console.log("failed to delete local image:" + err);
-                    } else {
-                        console.log('successfully deleted local image');
-                    }
-                });
 
                 return res.status(401).send({ message: 'Unauthorized User,Password does not match for the current user' });
 
@@ -86,23 +65,9 @@ exports.addFile = function (req, res, next) {
             var resultsSelectqlquerry = mysql.format('SELECT * FROM bill where id= ? AND owner_id=?', insert);
             connection.query(resultsSelectqlquerry, function (error, results, fields) {
                 if (error) {
-                    fs.unlink("./tmp/" + filename, (err) => {
-                        if (err) {
-                            console.log("failed to delete local image:" + err);
-                        } else {
-                            console.log('successfully deleted local image');
-                        }
-                    });
                     return res.status(404).send({ message: 'bill not found' });
                 }
                 if (results.length < 0) {
-                    fs.unlink("./tmp/" + filename, (err) => {
-                        if (err) {
-                            console.log("failed to delete local image:" + err);
-                        } else {
-                            console.log('successfully deleted local image');
-                        }
-                    });
 
                     return res.status(404).send({ message: 'Not Found, Bill not found for this user' });
                 }
@@ -117,26 +82,12 @@ exports.addFile = function (req, res, next) {
                     console.log(result)
                     connection.query(result, function (error, result, fields) {
                         if (error) {
-                            fs.unlink("./tmp/" + filename, (err) => {
-                                if (err) {
-                                    console.log("failed to delete local image:" + err);
-                                } else {
-                                    console.log('successfully deleted local image');
-                                }
-                            });
                             console.log(error);
                             return res.status(404).send({ message: 'Not found' });
                         }
                         var count = result[0].Count;
                         console.log("------------" + count)
                         if (count >= 1) {
-                            fs.unlink("./tmp/" + filename, (err) => {
-                                if (err) {
-                                    console.log("failed to delete local image:" + err);
-                                } else {
-                                    console.log('successfully deleted local image');
-                                }
-                            });
                             return res.status(400).send({ message: 'Bad Request, file allready exist , please delete the file and post it' });
                         }
                         var fileId = uuidv1();
@@ -146,80 +97,58 @@ exports.addFile = function (req, res, next) {
                         fileStream.on('error', function (err) {
                             console.log('File Error', err);
                         });
-                        // console.log(process.env.bucket)
+                        console.log("Process env bucket...", process.env.bucket)
+                        var uploadParams = { Bucket: process.env.bucket, Key: fileId, Body: '' };
+                        uploadParams.Body = fileStream;
 
                         // res.send("uploded")
-                        var file = {
-                            id: fileId,
-                            file_name: req.file.originalname,
-                            url: req.file.destination + req.file.originalname,
-                            bill_id: billId,
-                            upload_date: today,
-                            filename: req.file.filename,
-                            mimetype: req.file.mimetype,
-                            size: req.file.size,
-                            encoding: req.file.encoding
-                        }
+                        s3.upload(uploadParams, function (err, data1) {
 
-                        var databsecalled = new Date();
-                        connection.query('INSERT INTO File SET ?', file, function (error, results, fields) {
-                            if (error) {
-                                console.log("Bad Request", error);
-                                fs.unlink("./tmp/" + filename, (err) => {
-                                    if (err) {
-                                        console.log("failed to delete local image:" + err);
-                                    } else {
-                                        console.log('successfully deleted local image');
-                                    }
-                                });
-                                res.status(400).send({
-                                    "failed": "Bad Request, Cannot enter file"
-                                })
-                            } else {
-                                connection.query('SELECT * FROM File WHERE id = ?', fileId, function (error, result1) {
-                                    if (error) {
-                                        fs.unlink("./tmp/" + filename, (err) => {
-                                            if (err) {
-                                                console.log("failed to delete local image:" + err);
-                                            } else {
-                                                console.log('successfully deleted local image');
-                                            }
-                                        });
-                                        return res.status(400).send({
-                                            message: "bad request"
-                                        });
-                                    }
+                            if (err) {
+                                console.log(err);
+                                return res.status(400).send({ message: 'Bad Request, Please Add File correctly' });
+                            } if (data1) {
+                                var param1 = { Bucket: process.env.bucket, Key: fileId };
+                                s3.getObject(param1, function (err, data) {
+                                    if (err) console.log(err, err.stack); // an error occurred
                                     else {
-                                        console.log("response resulttt", result1[0]);
-                                        var updateSql = "UPDATE bill SET attachment = ? WHERE id = ?";
-                                        var billVals = [JSON.stringify(result1[0]), billId];
-                                        var updateResult = mysql.format(updateSql, billVals);
+                                        console.log(data);
+                                        console.log(data1);
+                                    }        // successful response
 
-                                        connection.query(updateResult, function (error, billResult) {
-                                            if (error) {
-                                                fs.unlink("./tmp/" + filename, (err) => {
-                                                    if (err) {
-                                                        console.log("failed to delete local image:" + err);
-                                                    } else {
-                                                        console.log('successfully deleted local image');
-                                                    }
-                                                });
-                                                console.log("error in saving file to bill..", error);
-                                            }
-                                            else {
-                                                console.log("adding file to bill..", result1[0]);
-                                                //attachment = result1[0];
-                                            }
-                                        })
-                                        res.status(201).send({
-                                            "file_name": result1[0].file_name,
-                                            "id": result1[0].id,
-                                            "url": result1[0].url,
-                                            "upload_date": result1[0].upload_date
-                                        });
+                                    // res.send("uploded")
+                                    var file = {
+                                        id: fileId,
+                                        file_name: filename,
+                                        upload_date: today,
+                                        url: data1.Location,
+                                        bill_id: billId,
+                                        AcceptRanges: data.AcceptRanges,
+                                        LastModified: data.LastModified,
+                                        ContentLength: data.ContentLength,
+                                        ETag: data.ETag,
+                                        ContentType: data.ContentLength,
                                     }
-                                })
+                                    var databasecalled = new Date();
+                                    connection.query('INSERT INTO File SET ?', file, function (error, results, fields) {
 
+
+                                        if (error) {
+                                            console.log("Bad Request", error);
+                                            res.status(400).send({
+                                                "failed": "Bad Request, Cannot enter bill"
+                                            })
+                                        } else {
+                                            res.status(201).send({
+
+                                                "id": fileId,
+                                                "url": data1.Location
+                                            });
+
+
+                                        }
+                                    });
+                                });
                             }
                         });
                     });
@@ -228,13 +157,6 @@ exports.addFile = function (req, res, next) {
         });
 
     } else {
-        fs.unlink("./tmp/" + filename, (err) => {
-            if (err) {
-                console.log("failed to delete local image:" + err);
-            } else {
-                console.log('successfully deleted local image');
-            }
-        });
         return res.status(400).send({ message: 'Bad Request, Please Add file in correct format' });
     }
 }
@@ -279,40 +201,18 @@ exports.getFile = function (req, res) {
                 if (error) {
                     return res.status(401).send({ message: "unauthorized, cannot access other user file" });
                 }
-                if(authResult.length <= 0 || authResult == null)
-                {
+                if (authResult.length <= 0 || authResult == null) {
                     return res.status(401).send({ message: "unauthorized, cannot access other user file" });
                 }
                 else {
-                    console.log("authresultt", authResult);
-                    getFileCounter = getFileCounter + 1;
-                    //  client.count("Get file API counter",getFileCounter);
-                    
-                    // var billId = req.params['billId'];
-                    console.log("req param id is...", req.params);
-                    console.log("File id is...", fileId);
-                    console.log("Bill id is...", billId);
-
-                    var insert = [fileId, billId]
-
-                    var resultsSelectqlquerry = mysql.format('SELECT * FROM File where id= ? and bill_id=? ', insert);
-                    connection.query(resultsSelectqlquerry, function (error, results, fields) {
-                        if (error) {
-                            return res.status(400).send({ message: 'Bad Request' });
-                        }
-                        if (results.length < 0 || typeof results[0] === 'undefined') {
-                            return res.status(404).send({ message: 'Not Found, File not found' });
-
-                        }
-                        else {
-                            console.log("result object for response..", results[0])
-                            res.status(201).send({
-                                "file_name": results[0].file_name,
-                                "id": results[0].id,
-                                "url": results[0].url,
-                                "upload_date": results[0].upload_date
-                            });
-                        }
+                    var param1 = { Bucket: process.env.bucket, Key: fileId };
+                    s3.getObject(param1, function (err, data) {
+                        if (err) return res.status(404).send({ message: 'Not Found, File not found' });
+                        // an error occurred
+                    });
+                    res.status(201).send({
+                        "id": fileId,
+                        "url": results[0].url
                     });
                 }
             });
@@ -393,36 +293,26 @@ exports.deleteFile = function (req, res) {
                         return res.status(404).send({ message: 'Not Found, File does not exist' });
                     }
                     var filename = result[0].filename;
+                    var deleteParams = { Bucket: process.env.bucket, Key: result[0].id };
                     console.log("filename is ..", result[0].filename);
-                    connection.query('delete from File where id= ?', fileId, function (error, results, fields) {
-                        if (error) {
-                            console.log("Bad Request", error);
-                            res.status(400).send({
-                                "failed": "Bad Request, Cannot Delete File"
-                            })
+                    s3.deleteObject(deleteParams, function (err, data) {
+                        if (err) {
+                            console.log(err, err.stack);
+                            return res.status(400).send({ message: 'Bad Request, Please Add file correctly' });
                         } else {
-                            var attach = "{}";
-                            var updateBillSql = 'UPDATE bill SET attachment = ? WHERE id = ?';
-                            var billVals = [attach, billId];
-                            var updateBillResult = mysql.format(updateBillSql, billVals);
 
-
-                            connection.query(updateBillResult, function (error, deleteFileBill) {
+                            console.log("Delete Success");
+                            connection.query('delete from File where id= ?', fileId, function (error, results, fields) {
                                 if (error) {
-                                    console.log("error in deleting file from bill", error);
-                                }
-                                else {
-                                    console.log("Successfully deleted file from bill");
-                                }
-                            });
-                            fs.unlink("./tmp/" + filename, (err) => {
-                                if (err) {
-                                    console.log("failed to delete local image:" + err);
+                                    console.log("Bad Request", error);
+                                    res.status(400).send({
+                                        "failed": "Bad Request, Cannot Delete Bill"
+                                    })
                                 } else {
-                                    console.log('successfully deleted local image');
+                                    console.log(data);
+                                    res.status(204).send({ message: 'No Content' });
                                 }
                             });
-                            res.status(204).send({ message: 'No Content' });
                         }
                     });
                 })

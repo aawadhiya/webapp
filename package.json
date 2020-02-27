@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.626.0",
     "bcrypt": "^3.0.7",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",

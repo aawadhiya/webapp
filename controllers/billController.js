@@ -2,8 +2,18 @@ var bcrypt = require('bcrypt');
 var mysql = require('mysql');
 var connection = require('../models/user');
 const uuidv1 = require('uuid/v1');
-const qs = require('querystring');
+const aws = require('aws-sdk');
+require('dotenv').config();
+
+aws.config.update({ region: 'us-east-1' });
+var s3 = new aws.S3({
+    accessKeyId: process.env.accessKeyId,
+    secretAccessKey: process.env.secretAccessKey
+});
 var fs = require('fs');
+
+const qs = require('querystring');
+var s3 = new aws.S3();
 var multer = require('multer')
 var upload = multer({ dest: 'tmp/', errorHandling: 'manual' })
 
@@ -202,7 +212,7 @@ exports.getBillById = function (req, res) {
     if (username == null || password == null) {
         return res.status(400).send({ message: 'Bad Request' });
     }
-    
+
     var responseData;
     console.log("initial value..", responseData);
     connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results) {
@@ -237,8 +247,8 @@ exports.getBillById = function (req, res) {
                                         var file = {
                                             id: fileResult[0].id,
                                             file_name: fileResult[0].file_name,
-                                            url: fileResult[0].url,                                            
-                                            upload_date: fileResult[0].upload_date       
+                                            url: fileResult[0].url,
+                                            upload_date: fileResult[0].upload_date
                                         }
                                         qResult[0]['attachment'] = file;
                                     }
@@ -340,8 +350,8 @@ exports.getBills = function (req, res) {
                                         var file = {
                                             id: fileResult[0].id,
                                             file_name: fileResult[0].file_name,
-                                            url: fileResult[0].url,                                            
-                                            upload_date: fileResult[0].upload_date       
+                                            url: fileResult[0].url,
+                                            upload_date: fileResult[0].upload_date
                                         }
                                         qResult[0]['attachment'] = file;
                                     }
@@ -551,47 +561,66 @@ exports.deleteBill = function (req, res) {
                         }
                         else {
                             if (result.length > 0) {
-                                connection.query('select * FROM File WHERE bill_id = ?', billId, function (error, deleteResult) {
+                                connection.query('select id from Images where recipeTable_idrecipe= ?', recipeid, function (error, results, fields) {
                                     if (error) {
-                                        console.log("error in delete filein delete bill");
-                                    }
-                                    if (deleteResult.length < 1) {
-                                        console.log("No file for bill");
-                                        console.log(deleteResult);
-                                    }
-                                    else {
-                                        var fileName = deleteResult[0].filename;
-                                        connection.query("DELETE FROM File WHERE bill_id = ?", billId, function (error, delResult) {
-                                            if (error) {
-                                                console.log("error in deleteing file in deleteBill");
-
-                                            }
-                                            else {
-                                                console.log("successfully delete file for deleteBill");
-                                                connection.query("DELETE FROM bill where id =?", billId, function (error, qResult) {
-                                                    if (error) {
-                                                        console.log("delete error..", error);
-                                                        return res.status(404).send({ message: 'Bill Not Found1' });
-                                                    } else {
-                                                        //console.log("delete result", qResult[0]);
-                                                        console.log("fileName is..", fileName);
-
-
-                                                        fs.unlink("./tmp/" + fileName, (err) => {
-                                                            if (err) {
-                                                                console.log("failed to delete local image:" + err);
-                                                            } else {
-                                                                console.log('successfully deleted local image');
-                                                            }
-                                                        });
-                                                        return res.status(204).send({ message: "No content" });
-                                                    }
-
-                                                });
-                                            }
+                                        console.log("Not Found", error);
+                                        res.send({
+                                            "code": 404,
+                                            "failed": "Not Found"
                                         })
                                     }
-                                });
+                                    else {
+                                        if (results.length > 0) {
+                                            results.forEach(function (file) {
+                                                console.log(file.id);
+                                                var params = { Bucket: process.env.bucket, Key: file.id };
+                                                s3.deleteObject(params, function (err, data) {
+                                                    if (err) {
+                                                        logger.error(err);
+                                                        return res.status(500).send({
+                                                            error: 'Error deleting the file from storage system'
+                                                        });
+                                                    }
+                                                    connection.query('Delete from File where bill_id= ?', billId, function (error, results, fields) {
+                                                        console.log("hi i am here at delete file");
+
+                                                        if (error) {
+                                                            console.log("Not Found", error);
+                                                            res.send({
+                                                                "code": 404,
+                                                                "failed": "Not Found"
+                                                            })
+                                                        } else {
+                                                            console.log("owner_id...." + userid)
+                                                            var ins = [billId]
+                                                            var resultsqlquerry = mysql.format('Delete from bill where id= ?', ins);
+                                                            connection.query(resultsqlquerry, function (error, results, fields) {
+                                                                console.log("hi i am here at delete bill");
+
+                                                                if (error) {
+                                                                    console.log("Bad Request", error);
+                                                                    return res.send({
+                                                                        "code": 400,
+                                                                        "failed": "Bad Request, cannot delete bill before deleting all the files"
+                                                                    })
+                                                                } else {
+                                                                    res.status(204).send({ message: "No Content" });
+
+                                                                }
+
+                                                            });
+                                                        }
+                                                    });
+                                                });
+
+                                            });
+                                        } else {
+                                            res.status(204).send({ message: "bill: no Content" });
+
+                                        }
+                                    }
+
+                                })
 
                             }
                             else {

@@ -3,17 +3,21 @@
 var mysql = require('mysql');
 
 var connnection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "Master@123",
-  database: "mydb"
+  host: "csye6225-spring2020.ckyosezxkk0m.us-east-1.rds.amazonaws.com",
+  user: "dbuser",
+  password: "csye6225password",
+  port     : "3306",
+  database: "csye6225"
 });
 
 connnection.connect(function (err) {
-  if (err) return err.message;
+  console.log("connected")
+  if (err) {
+  console.log(err);
+  return err.message;}
 
   console.log("Connected to the MySQL server.");
-  var usersql = "CREATE TABLE IF NOT EXISTS `mydb`.`users` (" +
+  var usersql = "CREATE TABLE IF NOT EXISTS `csye6225`.`users` (" +
     "`id` varchar(100) NOT NULL ," +
     "`first_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL," +
     "`last_name` varchar(100) COLLATE utf8_unicode_ci NOT NULL," +
@@ -24,7 +28,7 @@ connnection.connect(function (err) {
     "PRIMARY KEY (`id`)" +
     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
 
-    var billsql = "CREATE TABLE IF NOT EXISTS `mydb`.`bill` (" +
+    var billsql = "CREATE TABLE IF NOT EXISTS `csye6225`.`bill` (" +
     "`id` varchar(100) NOT NULL ," +
     "`created_ts` datetime NOT NULL," +
     "`updated_ts` datetime NOT NULL," +
@@ -41,16 +45,17 @@ connnection.connect(function (err) {
     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
 
 
-    var filesql = "CREATE TABLE IF NOT EXISTS `mydb`.`File` (" +
+    var filesql = "CREATE TABLE IF NOT EXISTS `csye6225`.`File` (" +
     "`id` varchar(100) NOT NULL ," +
     "`file_name` varchar(150) COLLATE utf8_unicode_ci  NOT NULL," +
     "`url` varchar(100)  NOT NULL," +
     "`upload_date` DATE NOT NULL," +
     "`bill_id` varchar(100) NOT NULL," +
-    "`filename` varchar(100) NOT NULL," +
-    "`mimetype` varchar(100) NOT NULL," +
-    "`size` double NOT NULL," +
-    "`encoding` varchar(100) NOT NULL," +
+    "`AcceptRanges` VARCHAR(254) NOT NULL," +
+    "`LastModified` VARCHAR(254) NOT NULL," +
+    "`ContentLength` VARCHAR(254) NOT NULL," +
+    "`ETag` VARCHAR(254) NOT NULL," +
+    "`ContentType` VARCHAR(254) NOT NULL," +
     "FOREIGN KEY(`bill_id`) REFERENCES `bill`( `id`)," +
     "PRIMARY KEY (`id`)" +  
     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"

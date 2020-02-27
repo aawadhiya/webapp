@@ -47,7 +47,7 @@ exports.addFile = function (req, res, next) {
     console.log("req file is..", req.file);
     if (req.file == null) return res.status(400).send({ message: 'Bad Request, file in form data cannot be null' });
     if (req.file.mimetype === "image/png" || req.file.mimetype === "image/jpg" || req.file.mimetype === "image/jpeg" || req.file.mimetype == "application/pdf") {
-        connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results, fields) {
+        connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results, fields) {
             var userid = "";
             if (error) {
                 return res.status(400).send({ message: 'Bad Request' });
@@ -62,7 +62,7 @@ exports.addFile = function (req, res, next) {
             }
             userId = results[0].id;
             var insert = [billId, userId]
-            var resultsSelectqlquerry = mysql.format('SELECT * FROM bill where id= ? AND owner_id=?', insert);
+            var resultsSelectqlquerry = mysql.format('SELECT * FROM csye6225.bill where id= ? AND owner_id=?', insert);
             connection.query(resultsSelectqlquerry, function (error, results, fields) {
                 if (error) {
                     return res.status(404).send({ message: 'bill not found' });
@@ -76,7 +76,7 @@ exports.addFile = function (req, res, next) {
                     console.log(req.file);
                     console.log("----")
                     var file_name = req.file.originalname;
-                    var selectSql = "SELECT count(file_name) AS Count  FROM File WHERE file_name = ? and bill_id=?";
+                    var selectSql = "SELECT count(file_name) AS Count  FROM csye6225.File WHERE file_name = ? and bill_id=?";
                     var insert = [file_name, billId];
                     var result = mysql.format(selectSql, insert);
                     console.log(result)
@@ -130,7 +130,7 @@ exports.addFile = function (req, res, next) {
                                         ContentType: data.ContentLength,
                                     }
                                     var databasecalled = new Date();
-                                    connection.query('INSERT INTO File SET ?', file, function (error, results, fields) {
+                                    connection.query('INSERT INTO csye6225.File SET ?', file, function (error, results, fields) {
 
 
                                         if (error) {
@@ -180,7 +180,7 @@ exports.getFile = function (req, res) {
         return res.status(400).send({ message: 'Bad Request' });
     }
     console.log("username is...", username);
-    connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results, fields) {
+    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results, fields) {
         if (error) {
             return res.status(400).send({ message: 'Bad Request' });
         }
@@ -197,7 +197,7 @@ exports.getFile = function (req, res) {
             // logger.info("Get bill Api");
             var authArray = [billId, results[0].id];
             console.log("Auth array..", authArray);
-            connection.query("SELECT * FROM bill WHERE id = ? AND owner_id = ?", authArray, function (error, authResult) {
+            connection.query("SELECT * FROM csye6225.bill WHERE id = ? AND owner_id = ?", authArray, function (error, authResult) {
                 if (error) {
                     return res.status(401).send({ message: "unauthorized, cannot access other user file" });
                 }
@@ -253,7 +253,7 @@ exports.deleteFile = function (req, res) {
         return res.status(400).send({ message: 'Bad Request' });
     }
 
-    connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results, fields) {
+    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results, fields) {
         var userId = "";
         if (error) {
             return res.status(400).send({ message: 'Bad Request' });
@@ -270,7 +270,7 @@ exports.deleteFile = function (req, res) {
         userId = results[0].id;
         var insert = [billId, userId]
         console.log("user id is ..", userId);
-        var resultsSelectqlquerry = mysql.format('SELECT * FROM bill where id = ? AND owner_id = ?', insert);
+        var resultsSelectqlquerry = mysql.format('SELECT * FROM csye6225.bill where id = ? AND owner_id = ?', insert);
         connection.query(resultsSelectqlquerry, function (error, results, fields) {
             if (error) {
                 return res.status(404).send({ message: 'Bill  Not Found' });
@@ -280,7 +280,7 @@ exports.deleteFile = function (req, res) {
                 return res.status(404).send({ message: 'Not Found, Bill not found for this user' });
             }
             else {
-                var selectSql = "SELECT *  FROM File WHERE id = ? AND bill_id = ?";
+                var selectSql = "SELECT *  FROM csye6225.File WHERE id = ? AND bill_id = ?";
                 var insert = [fileId, billId];
                 var resultQuery = mysql.format(selectSql, insert);
                 connection.query(resultQuery, function (error, result, fields) {
@@ -302,7 +302,7 @@ exports.deleteFile = function (req, res) {
                         } else {
 
                             console.log("Delete Success");
-                            connection.query('delete from File where id= ?', fileId, function (error, results, fields) {
+                            connection.query('delete from csye6225.File where id= ?', fileId, function (error, results, fields) {
                                 if (error) {
                                     console.log("Bad Request", error);
                                     res.status(400).send({

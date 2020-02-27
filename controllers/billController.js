@@ -99,7 +99,7 @@ exports.registerBill = function (req, res) {
     //     return res.status(400).send({"Bad Request": "Invalid Payment status value"});
     // }
 
-    connection.query("SELECT * FROM users WHERE email_address = ?", username, function (error, results) {
+    connection.query("SELECT * FROM csye6225.users WHERE email_address = ?", username, function (error, results) {
         if (error) {
             return res.status(404).send({ "message": " user not found for this username" });
         }
@@ -135,7 +135,7 @@ exports.registerBill = function (req, res) {
 
                     }
 
-                    connection.query('INSERT INTO bill SET ?', bill, function (error, result1) {
+                    connection.query('INSERT INTO csye6225.bill SET ?', bill, function (error, result1) {
                         if (error) {
                             console.log("error in saving bill is : ", error);
                             return res.status(400).send({ "Bad request": " Failed to save bill" });
@@ -143,7 +143,7 @@ exports.registerBill = function (req, res) {
                         else {
                             // Getting the bill data....
                             console.log("eNTERED");
-                            connection.query('SELECT * FROM bill WHERE id = ?', bill.id, function (error, qResult) {
+                            connection.query('SELECT * FROM csye6225.bill WHERE id = ?', bill.id, function (error, qResult) {
                                 console.log("Response23 object ", qResult[0]);
                                 if (error) {
                                     console.log("Erorrrrrrrr");
@@ -215,7 +215,7 @@ exports.getBillById = function (req, res) {
 
     var responseData;
     console.log("initial value..", responseData);
-    connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results) {
+    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results) {
         if (error) {
             console.log(error);
             return res.status(401).send({ message: 'Unauthorized' });
@@ -229,14 +229,13 @@ exports.getBillById = function (req, res) {
                     var ownerId = results[0].id;
                     var vals = [billId, ownerId];
 
-                    connection.query("SELECT * FROM bill where id =? and owner_id=?", vals, function (error, qResult) {
+                    connection.query("SELECT * FROM csye6225.bill where id =? and owner_id=?", vals, function (error, qResult) {
                         if (error) {
                             return res.status(401).send({ message: 'unauthorized' });
                         } else {
                             var categories = [];
                             if (qResult.length > 0) {
-
-                                connection.query('SELECT * FROM File WHERE bill_id = ?', billId, function (error, fileResult) {
+                                connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
                                     if (error) {
                                         console.log("error in file query");
                                     }
@@ -324,7 +323,7 @@ exports.getBills = function (req, res) {
     if (username == null || password == null) {
         return res.status(400).send({ message: 'Bad Request' });
     }
-    connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results) {
+    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results) {
         if (error) {
             console.log(error);
             return res.status(401).send({ message: 'Unauthorized' });
@@ -332,14 +331,14 @@ exports.getBills = function (req, res) {
             if (results.length > 0) {
                 if (bcrypt.compareSync(password, results[0].password)) {
 
-                    connection.query("SELECT * FROM bill where owner_id =?", results[0].id, function (error, qResult) {
+                    connection.query("SELECT * FROM csye6225.bill where owner_id =?", results[0].id, function (error, qResult) {
                         if (error) {
                             return res.status(404).send({ message: 'Bill Not Found' });
                         } else {
                             var categories = [];
                             if (qResult.length > 0) {
                                 var billId = qResult[0].id;
-                                connection.query('SELECT * FROM File WHERE bill_id = ?', billId, function (error, fileResult) {
+                                connection.query('SELECT * FROM csye6225.File WHERE csye6225.bill_id = ?', billId, function (error, fileResult) {
                                     if (error) {
                                         console.log("error in file query");
                                     }
@@ -453,7 +452,7 @@ exports.updateBill = function (req, res) {
         })
     };
 
-    connection.query('SELECT * FROM users WHERE email_address= ?', username, function (error, results) {
+    connection.query('SELECT * FROM csye6225.users WHERE email_address= ?', username, function (error, results) {
         if (error) {
             return res.status(404).send({ message: 'user  Not Found' });
         } else {
@@ -461,7 +460,7 @@ exports.updateBill = function (req, res) {
                 if (bcrypt.compareSync(password, results[0].password)) {
                     userId = results[0].id;
                     var vals = [billId, userId];
-                    var selectSqlQuery = mysql.format('SELECT * FROM bill where id= ? AND owner_id=?', vals);
+                    var selectSqlQuery = mysql.format('SELECT * FROM csye6225.bill where id= ? AND owner_id=?', vals);
                     connection.query(selectSqlQuery, function (error, results) {
                         if (error) {
                             return res.status(404).send({ message: 'bill  Not Found' });
@@ -471,14 +470,14 @@ exports.updateBill = function (req, res) {
                                 var categoriesString = req.body.categories.toString();
                                 console.log("req.cate....", categoriesString);
                                 console.log("request body....", req.body);
-                                connection.query('UPDATE bill SET updated_ts = ?, vendor = ?, bill_date = ?, due_date = ?, amount_due = ?, categories = ?, paymentStatus = ? WHERE id = ?',
+                                connection.query('UPDATE csye6225.bill SET updated_ts = ?, vendor = ?, bill_date = ?, due_date = ?, amount_due = ?, categories = ?, paymentStatus = ? WHERE id = ?',
                                     [today, req.body.vendor, req.body.bill_date, req.body.due_date, req.body.amount_due, categoriesString, req.body.paymentStatus.trim(), billId], function (error, results1) {
                                         if (error) {
                                             console.log("Errorr...", error);
                                             res.status(400).send({ "bad request": "unable to update bill" });
                                         }
                                         else {
-                                            connection.query("SELECT * FROM bill WHERE id = ?", billId, function (error, result2) {
+                                            connection.query("SELECT * FROM csye6225.bill WHERE id = ?", billId, function (error, result2) {
                                                 if (error) {
                                                     return res.status(404).send({ "Not Found": "No bill found" });
                                                 }
@@ -545,7 +544,7 @@ exports.deleteBill = function (req, res) {
     if (username == null || password == null) {
         return res.status(400).send({ message: 'Bad Request' });
     }
-    connection.query('SELECT * FROM users WHERE email_address = ?', username, function (error, results) {
+    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results) {
         if (error) {
             // console.log(error);
             return res.status(401).send({ message: 'Unauthorized' });
@@ -555,7 +554,7 @@ exports.deleteBill = function (req, res) {
                     console.log("Bill id....", req.params['id']);
 
                     var billId = req.params['id'];
-                    connection.query("SELECT * FROM bill WHERE id = ?", billId, function (error, result) {
+                    connection.query("SELECT * FROM csye6225.bill WHERE id = ?", billId, function (error, result) {
                         if (error) {
                             return res.status(404).send({ "Bad Request": "No bill found for this Id" });
                         }
@@ -581,7 +580,7 @@ exports.deleteBill = function (req, res) {
                                                             error: 'Error deleting the file from storage system'
                                                         });
                                                     }
-                                                    connection.query('Delete from File where bill_id= ?', billId, function (error, results, fields) {
+                                                    connection.query('Delete from csye6225.File where bill_id= ?', billId, function (error, results, fields) {
                                                         console.log("hi i am here at delete file");
 
                                                         if (error) {
@@ -593,7 +592,7 @@ exports.deleteBill = function (req, res) {
                                                         } else {
                                                             console.log("owner_id...." + userid)
                                                             var ins = [billId]
-                                                            var resultsqlquerry = mysql.format('Delete from bill where id= ?', ins);
+                                                            var resultsqlquerry = mysql.format('Delete from csye6225.bill where id= ?', ins);
                                                             connection.query(resultsqlquerry, function (error, results, fields) {
                                                                 console.log("hi i am here at delete bill");
 
@@ -601,7 +600,7 @@ exports.deleteBill = function (req, res) {
                                                                     console.log("Bad Request", error);
                                                                     return res.send({
                                                                         "code": 400,
-                                                                        "failed": "Bad Request, cannot delete bill before deleting all the files"
+                                                                        "failed": "Bad Request, cannot delete csye6225.bill before deleting all the files"
                                                                     })
                                                                 } else {
                                                                     res.status(204).send({ message: "No Content" });

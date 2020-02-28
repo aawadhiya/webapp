@@ -142,7 +142,10 @@ exports.addFile = function (req, res, next) {
                                             res.status(201).send({
 
                                                 "id": fileId,
-                                                "url": data1.Location
+                                                "url": data1.Location,
+                                                "file_name": filename,
+                                                "upload_date": today
+
                                             });
 
 
@@ -210,9 +213,10 @@ exports.getFile = function (req, res) {
                         if (err) return res.status(404).send({ message: 'Not Found, File not found' });
                         // an error occurred
                     });
+                    console.log("ressss",results[0] );
                     res.status(201).send({
                         "id": fileId,
-                        "url": results[0].url
+                        "billId": billId
                     });
                 }
             });

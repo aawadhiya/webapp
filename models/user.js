@@ -3,7 +3,7 @@
 var mysql = require('mysql');
 require('dotenv').config()
 
-console.log("env file", process.env);
+
 var connnection = mysql.createConnection({
   host: process.env.host,
   user: process.env.user,

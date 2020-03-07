@@ -37,7 +37,7 @@ jobs:
     filters:
       branches:
         only:
-          - ${GIT_BRANCH}
+          - assignment7
     docker:
       - image: circleci/python:2.l7-jessie
       - image: circleci/mysql:latest

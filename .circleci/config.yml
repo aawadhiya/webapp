@@ -34,7 +34,7 @@ jobs:
           name: Build Artifact
           command: |
             ls -al
-            cd webapp
+            cd webapp1
             pwd
             ls -al
             npm install

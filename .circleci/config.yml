@@ -15,78 +15,7 @@ jobs:
           command: |
             echo 'export MY_ENV_VAR="FOO"' >> $BASH_ENV # Redirect MY_ENV_VAR into $BASH_ENV
       # Run a step to print what branch our code base is on.
-
-      - run:
-      # Our primary container isn't MYSQL so run a sleep command until it is ready
-          name: Waiting for MySQL to be ready
-          command: |
-            for i in `seq 1 10`;
-            do
-              nc -z 127.0.0.1 3306 && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for MySQL && exit 1
-      - run:
-          name: Install MySQL CLI; Import dummy data; run an example query
-          command: |
-            sudo apt-get install mysql-client
-            mysql -h 127.0.0.1 -u dbuser -pMaster123 --execute="SHOW DATABASES"
-      - run:
-          name: Install packages
-          command: sudo apt update && sudo apt install wget zip unzip python2.7 python-pip -y 
-
-      - run:
-          name: Install awscli
-          command: sudo pip in
-
-  pr_check:
-    docker:  
-       - image: circleci/node:13.6.0
-       
-    steps:
-      - checkout # check out source code to working directory      
-      - run:
-          name: npm build
-          command: |
-            npm install      
-   
-
-  build_deploy:
-    filters:
-     branches:
-      only:
-        -master
-    docker:
-      - image: circleci/node:13.6.0
-    steps:
-      - checkout # check out source code to working directory
-      - run: npm install
-      - run: npm test   
-
-  build:    
-    docker:
-      - image: circleci/python:2.l7-jessie     
-
-    steps:
-      - checkout
-      - run: 
-          name: "Setup custom environment variables"
-          command: |
-            echo 'export MY_ENV_VAR="FOO"' >> $BASH_ENV # Redirect MY_ENV_VAR into $BASH_ENV
      
-
-      - run:
-      # Our primary container isn't MYSQL so run a sleep command until it is ready
-          name: Waiting for MySQL to be ready
-          command: |
-            for i in `seq 1 10`;
-            do
-              nc -z 127.0.0.1 3306 && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for MySQL && exit 1    
       - run:
           name: Install packages
           command: sudo apt update && sudo apt install wget zip unzip python2.7 python-pip -y 
@@ -160,6 +89,32 @@ jobs:
           command: |
             echo "calling code deploy"
             aws deploy create-deployment --application-name csye6225-webapp --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name csye6225-webapp-deployment --s3-location bucket=${S3_BUCKET_ADDR},bundleType=zip,key=deployments/csye6225-web-app-${CIRCLE_BUILD_NUM}.zip
+
+  pr_check:
+    docker:  
+       - image: circleci/node:13.6.0
+       
+    steps:
+      - checkout # check out source code to working directory      
+      - run:
+          name: npm build
+          command: |
+            npm install      
+   
+
+  build_deploy:
+    filters:
+     branches:
+      only:
+        -master
+    docker:
+      - image: circleci/node:13.6.0
+    steps:
+      - checkout # check out source code to working directory
+      - run: npm install
+      - run: npm test   
+
+
 
 workflows:
   version: 2

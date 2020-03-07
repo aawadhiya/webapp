@@ -50,7 +50,7 @@ jobs:
             ls -al
             sudo rm -r webapp1/node_modules/
             mkdir -p codedeploy_artifact
-            cp infrastructure/aws/codedeploy/*.sh .
+            cp /codedeploy/*.sh .
             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip webapp1 *.sh *.yml
             ls -al
             mv csye6225-web-app-${CIRCLE_BUILD_NUM}.zip codedeploy_artifact/

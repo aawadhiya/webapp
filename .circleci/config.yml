@@ -39,9 +39,7 @@ jobs:
       - run:
           name: Install awscli
           command: sudo pip in
----
-version: 2
-jobs:
+
   pr_check:
     docker:  
        - image: circleci/node:13.6.0

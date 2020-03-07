@@ -26,11 +26,7 @@ jobs:
       - run: npm install
       - run: npm test   
 
-  build:
-    filters:
-      branches:
-        only:
-          - assignment7
+  build:    
     docker:
       - image: circleci/python:2.l7-jessie     
 

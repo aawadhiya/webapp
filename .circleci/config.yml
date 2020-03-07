@@ -48,10 +48,10 @@ jobs:
             aws configure set default.region us-east-1
             pwd
             ls -al
-            sudo rm -r webapp/node_modules/
+            sudo rm -r webapp1/node_modules/
             mkdir -p codedeploy_artifact
             cp infrastructure/aws/codedeploy/*.sh .
-            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip webapp *.sh *.yml
+            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip webapp1 *.sh *.yml
             ls -al
             mv csye6225-web-app-${CIRCLE_BUILD_NUM}.zip codedeploy_artifact/
             ls -al

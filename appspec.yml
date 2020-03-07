@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 
 files:
-  - source: ./webapp
+  - source: ./webapp1
     destination: /home/ubuntu/webapp
 
 permissions:

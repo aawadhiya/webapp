@@ -1,0 +1,41 @@
+version: 0.0
+os: linux
+
+files:
+  - source: ./webapp
+    destination: /home/ubuntu/webapp
+
+permissions:
+  - object: /home/ubuntu/webapp
+    owner: ubuntu
+    group: ubuntu
+    mode: 700
+    type:
+      - file
+  - object: /home/ubuntu/webapp
+    owner: ubuntu
+    group: ubuntu
+    mode: 700
+    type:
+      - directory
+
+hooks:
+  BeforeInstall:
+   - location: ./beforeInstall.sh
+     timeout: 180
+     runas: ubuntu
+
+  AfterInstall:
+   - location: ./afterInstall.sh
+     timeout: 180
+     runas: ubuntu
+
+  ApplicationStart:
+   - location: ./applicationstart.sh
+     timeout: 180
+     runas: ubuntu
+
+  ApplicationStop:
+   - location: ./applicationstop.sh
+     timeout: 180
+     runas: ubuntu   

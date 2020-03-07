@@ -1,12 +1,12 @@
 #!/bin/bash
 
-sudo chown centos /home/ubuntu/webapp/
+sudo chown ubuntu /home/ubuntu/webapp/
 
 cd ~
 FILE=.env
 if test -f "$FILE"; then
     echo "$FILE exist"
-    sudo cp /home/centos/.env /home/ubuntu/webapp/
+    sudo cp /home/ubuntu/.env /home/ubuntu/webapp/
 fi
 
 if ! test -f "$FILE"; then

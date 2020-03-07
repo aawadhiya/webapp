@@ -5,20 +5,6 @@ files:
   - source: ./webapp1
     destination: /home/ubuntu/webapp
 
-permissions:
-  - object: /home/ubuntu/webapp
-    owner: ubuntu
-    group: ubuntu
-    mode: 700
-    type:
-      - file
-  - object: /home/ubuntu/webapp
-    owner: ubuntu
-    group: ubuntu
-    mode: 700
-    type:
-      - directory
-
 hooks:
   BeforeInstall:
    - location: ./beforeInstall.sh

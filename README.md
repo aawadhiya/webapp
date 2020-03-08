@@ -63,4 +63,4 @@ mocha
 
 ## CI using circleci
 Running ci
-running cd
+running cd test

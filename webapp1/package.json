@@ -12,10 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.626.0",
-    "bcrypt": "^3.0.7",
+    "bcrypt": "^3.0.8",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
-    "dotenv": "^8.2.0",
     "email-validator": "^2.0.4",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
@@ -30,5 +29,8 @@
     "should": "^13.2.3",
     "superagent": "^5.2.1",
     "uuid": "^3.4.0"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
   }
 }

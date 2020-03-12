@@ -51,7 +51,7 @@ jobs:
             sudo rm -r webapp1/node_modules/
             mkdir -p codedeploy_artifact
             cp codedeploy/*.sh .
-            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip webapp1 *.sh *.yml /codedeploy/appspec.yml
+            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip webapp1 *.sh *.yml
             ls -al
             mv csye6225-web-app-${CIRCLE_BUILD_NUM}.zip codedeploy_artifact/
             ls -al

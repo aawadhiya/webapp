@@ -64,4 +64,4 @@ mocha
 ## CI using circleci
 Running ci
 running cd test2
-checking for appspec1
+checking for appspec

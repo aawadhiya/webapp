@@ -338,7 +338,7 @@ exports.getBills = function (req, res) {
                             var categories = [];
                             if (qResult.length > 0) {
                                 var billId = qResult[0].id;
-                                connection.query('SELECT * FROM csye6225.File WHERE csye6225.bill_id = ?', billId, function (error, fileResult) {
+                                connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
                                     if (error) {
                                         console.log("error in file query");
                                     }

@@ -560,7 +560,7 @@ exports.deleteBill = function (req, res) {
                         }
                         else {
                             if (result.length > 0) {
-                                connection.query('select id from Images where recipeTable_idrecipe= ?', recipeid, function (error, results, fields) {
+                                connection.query('select id from File where bill_Id= ?', billId, function (error, results, fields) {
                                     if (error) {
                                         console.log("Not Found", error);
                                         res.send({

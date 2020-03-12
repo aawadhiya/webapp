@@ -65,4 +65,4 @@ mocha
 Running ci
 running cd test2
 checking for appspec file again
-
+...

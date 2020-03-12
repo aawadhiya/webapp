@@ -214,7 +214,7 @@ exports.getBillById = function (req, res) {
     }
 
     var responseData;
-    console.log("initial value..", responseData);
+    //console.log("initial value..", responseData);
     connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results) {
         if (error) {
             console.log(error);
@@ -338,7 +338,7 @@ exports.getBills = function (req, res) {
                             var categories = [];
                             if (qResult.length > 0) {
                                 var billId = qResult[0].id;
-                                connection.query('SELECT * FROM csye6225.File WHERE csye6225.bill_id = ?', billId, function (error, fileResult) {
+                                connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
                                     if (error) {
                                         console.log("error in file query");
                                     }
@@ -484,6 +484,28 @@ exports.updateBill = function (req, res) {
                                                 else {
                                                     // var categories = [];
                                                     if (result2.length > 0) {
+                                                        
+                                                        connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
+                                                            if (error) {
+                                                                console.log("error in file query");
+                                                            }
+                                                            if (fileResult.length < 1) {
+                                                                result2[0]['attachment'] = {};
+                                                            }
+                                                            else {
+                                                                var file = {
+                                                                    id: fileResult[0].id,
+                                                                    file_name: fileResult[0].file_name,
+                                                                    url: fileResult[0].url,
+                                                                    upload_date: fileResult[0].upload_date
+                                                                }
+                                                                result2[0]['attachment'] = file;
+                                                                console.log("att..", result2[0]['attachment']);
+
+                                                            }
+                                                        
+                                                        console.log("att.1.", result2[0]['attachment']);
+
                                                         var catArray = [];
                                                         var categories = JSON.stringify(result2[0]['categories']);
                                                         var catList = categories.split(',');
@@ -497,6 +519,7 @@ exports.updateBill = function (req, res) {
                                                         console.log("bill..", result2[0]);
 
                                                         return res.status(200).send(result2[0]);
+                                                    });
                                                     }
                                                     else {
                                                         return res.status(404).send({ message: 'Bill not found' });
@@ -560,7 +583,7 @@ exports.deleteBill = function (req, res) {
                         }
                         else {
                             if (result.length > 0) {
-                                connection.query('select id from Images where recipeTable_idrecipe= ?', recipeid, function (error, results, fields) {
+                                connection.query('select id from csye6225.File where bill_Id= ?', billId, function (error, results, fields) {
                                     if (error) {
                                         console.log("Not Found", error);
                                         res.send({
@@ -580,7 +603,7 @@ exports.deleteBill = function (req, res) {
                                                             error: 'Error deleting the file from storage system'
                                                         });
                                                     }
-                                                    connection.query('Delete from csye6225.File where bill_id= ?', billId, function (error, results, fields) {
+                                                    connection.query('Delete from csye6225.File where id= ?', billId, function (error, results, fields) {
                                                         console.log("hi i am here at delete file");
 
                                                         if (error) {
@@ -590,11 +613,10 @@ exports.deleteBill = function (req, res) {
                                                                 "failed": "Not Found"
                                                             })
                                                         } else {
-                                                            console.log("owner_id...." + userid)
                                                             var ins = [billId]
-                                                            var resultsqlquerry = mysql.format('Delete from csye6225.bill where id= ?', ins);
+                                                            var resultsqlquerry = mysql.format('Delete from csye6225.File where bill_id= ?', ins);
                                                             connection.query(resultsqlquerry, function (error, results, fields) {
-                                                                console.log("hi i am here at delete bill");
+                                                                console.log("hi i am here at delete file");
 
                                                                 if (error) {
                                                                     console.log("Bad Request", error);

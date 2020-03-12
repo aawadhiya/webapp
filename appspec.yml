@@ -1,0 +1,27 @@
+version: 0.0
+os: linux
+
+files:
+  - source: ./webapp1
+    destination: /home/ubuntu/webapp
+
+hooks:
+  BeforeInstall:
+   - location: ./beforeInstall.sh
+     timeout: 180
+     runas: ubuntu
+
+  AfterInstall:
+   - location: ./afterInstall.sh
+     timeout: 180
+     runas: ubuntu
+
+  ApplicationStart:
+   - location: ./applicationstart.sh
+     timeout: 180
+     runas: ubuntu
+
+  ApplicationStop:
+   - location: ./applicationstop.sh
+     timeout: 180
+     runas: ubuntu   

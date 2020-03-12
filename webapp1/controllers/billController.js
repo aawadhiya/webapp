@@ -592,9 +592,9 @@ exports.deleteBill = function (req, res) {
                                                         } else {
                                                             console.log("owner_id...." + userid)
                                                             var ins = [billId]
-                                                            var resultsqlquerry = mysql.format('Delete from csye6225.bill where id= ?', ins);
+                                                            var resultsqlquerry = mysql.format('Delete from csye6225.File where bill_id= ?', ins);
                                                             connection.query(resultsqlquerry, function (error, results, fields) {
-                                                                console.log("hi i am here at delete bill");
+                                                                console.log("hi i am here at delete file");
 
                                                                 if (error) {
                                                                     console.log("Bad Request", error);

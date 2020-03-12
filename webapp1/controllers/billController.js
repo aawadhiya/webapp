@@ -484,6 +484,25 @@ exports.updateBill = function (req, res) {
                                                 else {
                                                     // var categories = [];
                                                     if (result2.length > 0) {
+                                                        var billId = qResult[0].id;
+                                                        connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
+                                                            if (error) {
+                                                                console.log("error in file query");
+                                                            }
+                                                            if (fileResult.length < 1) {
+                                                                result2[0]['attachment'] = {};
+                                                            }
+                                                            else {
+                                                                var file = {
+                                                                    id: fileResult[0].id,
+                                                                    file_name: fileResult[0].file_name,
+                                                                    url: fileResult[0].url,
+                                                                    upload_date: fileResult[0].upload_date
+                                                                }
+                                                                result2[0]['attachment'] = file;
+                                                            }
+                                                        });
+
                                                         var catArray = [];
                                                         var categories = JSON.stringify(result2[0]['categories']);
                                                         var catList = categories.split(',');

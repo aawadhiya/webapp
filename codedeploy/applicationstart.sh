@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/centos/webapp/
+cd /home/ubuntu/webapp/
 
 npm install
 

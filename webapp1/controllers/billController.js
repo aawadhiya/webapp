@@ -590,7 +590,6 @@ exports.deleteBill = function (req, res) {
                                                                 "failed": "Not Found"
                                                             })
                                                         } else {
-                                                          //  console.log("owner_id...." + userId)
                                                             var ins = [billId]
                                                             var resultsqlquerry = mysql.format('Delete from csye6225.File where bill_id= ?', ins);
                                                             connection.query(resultsqlquerry, function (error, results, fields) {

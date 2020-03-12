@@ -580,7 +580,7 @@ exports.deleteBill = function (req, res) {
                                                             error: 'Error deleting the file from storage system'
                                                         });
                                                     }
-                                                    connection.query('Delete from csye6225.bill where id= ?', billId, function (error, results, fields) {
+                                                    connection.query('Delete from csye6225.File where id= ?', billId, function (error, results, fields) {
                                                         console.log("hi i am here at delete file");
 
                                                         if (error) {

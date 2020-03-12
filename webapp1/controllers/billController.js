@@ -503,7 +503,7 @@ exports.updateBill = function (req, res) {
                                                                 console.log("att..", result2[0]['attachment']);
 
                                                             }
-                                                        });
+                                                        
                                                         console.log("att.1.", result2[0]['attachment']);
 
                                                         var catArray = [];
@@ -519,6 +519,7 @@ exports.updateBill = function (req, res) {
                                                         console.log("bill..", result2[0]);
 
                                                         return res.status(200).send(result2[0]);
+                                                    });
                                                     }
                                                     else {
                                                         return res.status(404).send({ message: 'Bill not found' });

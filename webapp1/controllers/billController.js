@@ -214,7 +214,7 @@ exports.getBillById = function (req, res) {
     }
 
     var responseData;
-    console.log("initial value..", responseData);
+    //console.log("initial value..", responseData);
     connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results) {
         if (error) {
             console.log(error);

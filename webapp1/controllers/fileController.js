@@ -298,7 +298,7 @@ exports.deleteFile = function (req, res) {
                     }
                     var filename = result[0].filename;
                     var deleteParams = { Bucket: process.env.bucket, Key: result[0].id };
-                    console.log("filename is ..", result[0].filename);
+                  //  console.log("filename is ..", result[0].filename);
                     s3.deleteObject(deleteParams, function (err, data) {
                         if (err) {
                             console.log(err, err.stack);

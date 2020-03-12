@@ -6,7 +6,7 @@ cd ~
 FILE=.env
 if test -f "$FILE"; then
     echo "$FILE exist"
-    sudo cp /home/ubuntu/.env /home/ubuntu/webapp/
+    sudo cp /home/ubuntu/$FILE /home/ubuntu/webapp/
 fi
 
 if ! test -f "$FILE"; then

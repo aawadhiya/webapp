@@ -500,8 +500,11 @@ exports.updateBill = function (req, res) {
                                                                     upload_date: fileResult[0].upload_date
                                                                 }
                                                                 result2[0]['attachment'] = file;
+                                                                console.log("att..", result2[0]['attachment']);
+
                                                             }
                                                         });
+                                                        console.log("att.1.", result2[0]['attachment']);
 
                                                         var catArray = [];
                                                         var categories = JSON.stringify(result2[0]['categories']);

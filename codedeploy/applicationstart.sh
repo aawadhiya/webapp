@@ -1,8 +1,8 @@
 #!/bin/bash
 
 cd /home/ubuntu/webapp/
-sudo rm -r node_modules
-sudo rm -r logs
+sudo rm -rf node_modules
+sudo rm -rf logs
 sudo rm app.log
 npm install
 

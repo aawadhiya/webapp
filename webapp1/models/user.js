@@ -30,6 +30,16 @@ connnection.connect(function (err) {
     "PRIMARY KEY (`id`)" +
     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
 
+  connnection.query(usersql, function (err, result) {
+    if (err){ 
+      console.log("allready exist");
+  }
+    else{
+      console.log("User table created");
+    }
+    
+  });
+
     var billsql = "CREATE TABLE IF NOT EXISTS `csye6225`.`bill` (" +
     "`id` varchar(100) NOT NULL ," +
     "`created_ts` datetime NOT NULL," +
@@ -45,6 +55,16 @@ connnection.connect(function (err) {
     "FOREIGN KEY(`owner_id`) REFERENCES `users`( `id`)," +
     "PRIMARY KEY (`id`)" +  
     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
+
+    connnection.query(billsql, function (err, result) {
+      if (err){
+        console.log("allready exist", err);
+      } 
+      else{
+        console.log("bill table created");
+      }
+      
+    });   
 
 
     var filesql = "CREATE TABLE IF NOT EXISTS `csye6225`.`File` (" +
@@ -62,15 +82,7 @@ connnection.connect(function (err) {
     "PRIMARY KEY (`id`)" +  
     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
 
-    connnection.query(billsql, function (err, result) {
-      if (err){
-        console.log("allready exist", err);
-      } 
-      else{
-        console.log("bill table created");
-      }
-      
-    });   
+    
     connnection.query(filesql, function (err, result) {
       if (err){ 
         console.log("allready exist file table", err);
@@ -81,15 +93,6 @@ connnection.connect(function (err) {
      
     });
 
-  connnection.query(usersql, function (err, result) {
-    if (err){ 
-      console.log("allready exist");
-  }
-    else{
-      console.log("User table created");
-    }
-    
-  });
 });
 
 

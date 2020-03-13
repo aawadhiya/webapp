@@ -63,17 +63,32 @@ connnection.connect(function (err) {
     ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;"
 
     connnection.query(billsql, function (err, result) {
-      if (err) console.log("allready exist");
-      console.log("bill table created");
+      if (err){
+        console.log("allready exist", err);
+      } 
+      else{
+        console.log("bill table created");
+      }
+      
     });   
     connnection.query(filesql, function (err, result) {
-      if (err) console.log("allready exist file table");
-      console.log("File table created");
+      if (err){ 
+        console.log("allready exist file table", err);
+      }
+      else{
+        console.log("File table created");
+      }
+     
     });
 
   connnection.query(usersql, function (err, result) {
-    if (err) console.log("allready exist");
-    console.log("User table created");
+    if (err){ 
+      console.log("allready exist");
+  }
+    else{
+      console.log("User table created");
+    }
+    
   });
 });
 

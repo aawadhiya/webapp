@@ -92,7 +92,7 @@ describe('Post get and update test', function (done) {
 // Removed comment..
     it("Get user test ", (done) => {
         chai.request(app)
-            .get('/v2/user/')
+            .get('/v1/user/')
             .auth('11aawadhiya03@gmail.com', 'Abcd@1234')
             .then((res) => {
                 //assertions
@@ -104,7 +104,7 @@ describe('Post get and update test', function (done) {
 
     it("Get Invalid user test ", (done) => {
         chai.request(app)
-            .get('/v2/user/')
+            .get('/v1/user/')
             .auth('a.awya03@gmail.com', 'Abcd@1234')
             .then((res) => {
                 //assertions
@@ -116,7 +116,7 @@ describe('Post get and update test', function (done) {
 
     it("Put Valid test ", (done) => {
         chai.request(app)
-            .put('/v2/user/')
+            .put('/v1/user/')
             .auth('11aawadhiya03@gmail.com', 'Abcd@1234')
             .send(ValidPutCredential)
             .then((res) => {
@@ -129,7 +129,7 @@ describe('Post get and update test', function (done) {
 
     it("Put : Invalid credential for put test ", (done) => {
         chai.request(app)
-            .put('/v2/user/')
+            .put('/v1/user/')
             .auth('11aawaya03@gmail.com', 'Abcd@1234')
             .send(ValidPutCredential)
             .then((res) => {

@@ -5,7 +5,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 // Import user routes..
-app.use('/v2', userRoutes);
+app.use('/v1', userRoutes);
 const port = 3001;
 // for body-parser....true/false??
 

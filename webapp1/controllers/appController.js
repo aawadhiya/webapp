@@ -59,9 +59,9 @@ exports.register = function (req, res) {
         }
         connection.query('INSERT INTO csye6225.users SET ?', user, function (error, results, fields) {
             var end = new Date();
-            var dif = end - start;
-            console.log(dif);
-            client.count("time to add user", dif);
+            var difference = end - start;
+            console.log(difference);
+            client.count("time taken to add user", difference);
             if (error) {
                 console.log("Bad Request, cannot insert user", error);
                 res.send({

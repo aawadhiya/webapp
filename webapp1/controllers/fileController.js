@@ -146,7 +146,7 @@ exports.addFile = function (req, res, next) {
                                     }
                                     var databasecalled = new Date();
                                     connection.query('INSERT INTO csye6225.File SET ?', file, function (error, results, fields) {
-                                        var dbapiTimer = appicalled - databsecalled;
+                                        var dbapiTimer = appicalled - databasecalled;
                                         console.log(dbapiTimer);
                                         client.count("Process time of File database", dbapiTimer);
                                         var appicalled = new Date();

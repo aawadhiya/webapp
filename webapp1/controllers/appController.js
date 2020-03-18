@@ -3,10 +3,20 @@ var validator = require("email-validator");
 var mysql = require('mysql');
 var connection = require('../models/user.js');
 const uuidv1 = require('uuid/v1');
+var Client = require('node-statsd-client').Client;
+const logger = require('../config/winston');
 var schema = require('./passwordValidator');
+var client = new Client("localhost", 8125);
+var registerCounter = 0;
+var updateCounter = 0;
+var getCounter = 0;
 
 // Register new user...
 exports.register = function (req, res) {
+    logger.info("Register User");
+    var start = new Date();
+    registerCounter = registerCounter + 1;
+    client.count("count register api", registerCounter);
     console.log("req", req.body);
     if (req.body.first_name == null || req.body.last_name == null || (req.body.first_name).trim().length < 1 || (req.body.last_name).trim().length < 1 || req.body.password == null || req.body.email_address == null) {
         return res.status(400).send({
@@ -19,7 +29,7 @@ exports.register = function (req, res) {
 
     if (!schema.validate(req.body.password)) { return res.status(400).send({ message: 'Bad Request, try another Password' }) };
 
-   
+
     var salt = bcrypt.genSaltSync(10);
     var hash = bcrypt.hashSync(req.body.password, salt);
     var today = new Date();
@@ -40,15 +50,18 @@ exports.register = function (req, res) {
     var insert = [user.email_address];
     var result = mysql.format(selectSql, insert);
     connection.query(result, function (error, result, fields) {
-   
-        console.log("------------" )
+
+        console.log("------------")
 
         var count = result[0].Count;
         if (count >= 1) {
             return res.status(400).send({ message: 'Bad Request, Email already exist, try other email' });
         }
         connection.query('INSERT INTO csye6225.users SET ?', user, function (error, results, fields) {
-
+            var end = new Date();
+            var dif = end - start;
+            console.log(dif);
+            client.count("time to add user", dif);
             if (error) {
                 console.log("Bad Request, cannot insert user", error);
                 res.send({
@@ -80,6 +93,9 @@ exports.register = function (req, res) {
 // Reference link for postman basic auth....
 // https://learning.getpostman.com/docs/postman/sending-api-requests/authorization/
 exports.login = function (req, res) {
+    getCounter=getCounter+1;
+    client.count("count user get api", getCounter);
+    logger.info("get user");
     var token = req.headers['authorization'];
     // Basic <Base64 encoded username and password>
     console.log("request :-", req);
@@ -134,6 +150,9 @@ exports.login = function (req, res) {
 
 // Update existing user...
 exports.update = function (req, res) {
+    updateCounter=updateCounter+1;
+    client.count("count update api", updateCounter);
+    logger.info("update User");
 
     var today = new Date();
     var token = req.headers['authorization'];

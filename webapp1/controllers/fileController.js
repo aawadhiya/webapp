@@ -6,6 +6,10 @@ const aws = require('aws-sdk');
 require('dotenv').config();
 
 var fs = require('fs');
+var Client = require('node-statsd-client').Client;
+const logger = require('../config/winston');
+var client = new Client("localhost", 8125);
+
 var s3 = new aws.S3({
     accessKeyId: process.env.accessKeyId,
     secretAccessKey: process.env.secretAccessKey
@@ -14,17 +18,23 @@ var today = new Date();
 var addFileCounter = 0;
 var getFileCounter = 0;
 var deleteFileCounter = 0;
+var datbaseStart = new Date();
 var multer = require('multer')
 var upload = multer({ dest: 'tmp/', errorHandling: 'manual' })
 var datbaseStart = new Date();
 
 // POST
 exports.addFile = function (req, res, next) {
-    var filename = req.file.filename;
-    var apiStart = new Date();
-    var today = new Date();
-    addFileCounter = addFileCounter + 1;
+    var appiStart = new Date();
 
+    logger.info("Add file Api");
+
+    addFileCounter = addFileCounter + 1;
+    client.count("Add file API counter", addFileCounter);
+
+    var filename = req.file.filename;
+
+    var today = new Date();
 
     var billId = req.params['id'];
     var token = req.headers['authorization'];
@@ -103,7 +113,12 @@ exports.addFile = function (req, res, next) {
 
                         // res.send("uploded")
                         s3.upload(uploadParams, function (err, data1) {
-
+                            var s3called = new Date();
+                            console.log(s3called);
+                            console.log(appiStart);
+                            var s3Timer = s3called - appiStart;
+                            console.log(s3Timer);
+                            client.count("Process time for file upload to s3", s3Timer);
                             if (err) {
                                 console.log(err);
                                 return res.status(400).send({ message: 'Bad Request, Please Add File correctly' });
@@ -131,7 +146,15 @@ exports.addFile = function (req, res, next) {
                                     }
                                     var databasecalled = new Date();
                                     connection.query('INSERT INTO csye6225.File SET ?', file, function (error, results, fields) {
-
+                                        var dbapiTimer = appicalled - databsecalled;
+                                        console.log(dbapiTimer);
+                                        client.count("Process time of File database", dbapiTimer);
+                                        var appicalled = new Date();
+                                        console.log(appicalled);
+                                        console.log(appiStart);
+                                        var apiTimer = appicalled - appiStart;
+                                        console.log(apiTimer);
+                                        client.count("Process time of File API", apiTimer);
 
                                         if (error) {
                                             console.log("Bad Request", error);
@@ -166,6 +189,10 @@ exports.addFile = function (req, res, next) {
 
 // GET
 exports.getFile = function (req, res) {
+    logger.info("Get File Api");
+
+  getFileCounter=getFileCounter+1;
+  client.count("Get File API counter",getFileCounter);
 
     var token = req.headers['authorization'];
     if (!token) return res.status(401).send({ message: 'No authorization token' });
@@ -213,7 +240,7 @@ exports.getFile = function (req, res) {
                         if (err) return res.status(404).send({ message: 'Not Found, File not found' });
                         // an error occurred
                     });
-                    console.log("ressss",results[0] );
+                    console.log("ressss", results[0]);
                     res.status(201).send({
                         "id": fileId,
                         "billId": billId
@@ -232,8 +259,11 @@ exports.deleteFile = function (req, res) {
     // console.log("filename is ..", req.file.filename);
     // var fileName = req.file.filename;
 
-    deleteFileCounter = deleteFileCounter + 1;
+  logger.info("Delete Image Api");
 
+  deleteFileCounter=deleteFileCounter+1;
+  client.count("Delete File API counter",1);
+    
     var billId = req.params['billId'];
     var fileId = req.params['fileId'];
     console.log("req param id is...", req.params);
@@ -298,7 +328,7 @@ exports.deleteFile = function (req, res) {
                     }
                     var filename = result[0].filename;
                     var deleteParams = { Bucket: process.env.bucket, Key: result[0].id };
-                  //  console.log("filename is ..", result[0].filename);
+                    //  console.log("filename is ..", result[0].filename);
                     s3.deleteObject(deleteParams, function (err, data) {
                         if (err) {
                             console.log(err, err.stack);

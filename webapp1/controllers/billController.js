@@ -11,15 +11,27 @@ var s3 = new aws.S3({
     secretAccessKey: process.env.secretAccessKey
 });
 var fs = require('fs');
+var Client = require('node-statsd-client').Client;
+const logger = require('../config/winston');
+var client = new Client("localhost", 8125);
 
 const qs = require('querystring');
 var s3 = new aws.S3();
 var multer = require('multer')
 var upload = multer({ dest: 'tmp/', errorHandling: 'manual' })
+var registerCounter=0;
+var updateCounter=0;
+var getCounter=0;
 
 
 // POST for bill...
 exports.registerBill = function (req, res) {
+    logger.info("register bill");
+    var start = new Date();
+
+    registerCounter=registerCounter+1;
+  client.count("count register bill api", 1);
+  
     var today = new Date();
 
     var token = req.headers['authorization'];
@@ -196,6 +208,11 @@ exports.registerBill = function (req, res) {
 // GET by ID..
 exports.getBillById = function (req, res) {
 
+    getCounter=getCounter+1;
+    client.count("count get bill api", getCounter);
+  
+    logger.info("getting bill");
+
     var token = req.headers['authorization'];
     // Basic <Base64 encoded username and password>
 
@@ -303,6 +320,10 @@ exports.getBillById = function (req, res) {
 
 // GET all bills...
 exports.getBills = function (req, res) {
+    getCounter=getCounter+1;
+  client.count("count get bill api", getCounter);
+
+  logger.info("getting bill");
 
     var token = req.headers['authorization'];
     // Basic <Base64 encoded username and password>
@@ -405,6 +426,8 @@ exports.getBills = function (req, res) {
 
 // Update bill ....
 exports.updateBill = function (req, res) {
+    updateCounter = updateCounter + 1;
+    client.count("count update bill api", updateCounter);
 
     var today = new Date();
     let date = ("0" + today.getDate()).slice(-2);
@@ -552,6 +575,8 @@ exports.updateBill = function (req, res) {
 // Delete bill.......
 exports.deleteBill = function (req, res) {
 
+    logger.info("deleting bill");
+  
     var token = req.headers['authorization'];
     // Basic <Base64 encoded username and password>   
     if (!token) return res.status(401).send({ message: 'unauthorized' });

@@ -155,8 +155,7 @@ exports.registerBill = function (req, res) {
                         client.count("Process time of POST Bill API", apiTimer);
                         client.timing("Process time1 of POST Bill API", apiStart);
                         client.timing("Process time2 of POST Bill API", apiTimer);
-                        logger.log( client.timing("Process time2 of POST Bill API", apiTimer));
-                        logger.log(  client.timing("Process time1 of POST Bill API", apiStart));
+                        
                         if (error) {
                             console.log("error in saving bill is : ", error);
                             return res.status(400).send({ "Bad request": " Failed to save bill" });

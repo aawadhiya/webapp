@@ -115,7 +115,7 @@ exports.addFile = function (req, res, next) {
                             console.log(apiStart);
                             var s3Timer = s3called - apiStart;
                             console.log(s3Timer);
-                            client.count("Process time for file upload to s3", s3Timer);
+                            client.timing("Process time for file upload to s3", s3Timer);
                             if (err) {
                                 console.log(err);
                                 return res.status(400).send({ message: 'Bad Request, Please Add File correctly' });
@@ -236,7 +236,7 @@ exports.getFile = function (req, res) {
                     var param1 = { Bucket: process.env.bucket, Key: fileId };
                     var apiEnd = new Date();
                     var apiTimer = apiEnd - apiStart;
-                    client.count("Process time of GET File API", apiTimer);
+                    client.timing("Process time of GET File API", apiTimer);
                     s3.getObject(param1, function (err, data) {
                         if (err) return res.status(404).send({ message: 'Not Found, File not found' });
                         // an error occurred
@@ -330,7 +330,7 @@ exports.deleteFile = function (req, res) {
                     s3.deleteObject(deleteParams, function (err, data) {
                         var endTime = new Date();
                         var apiTimer = endTime - apiStart;
-                        client.count("Process time of DELETE File API", apiTimer);
+                        client.timing("Process time of DELETE File API", apiTimer);
                         if (err) {
                             console.log(err, err.stack);
                             return res.status(400).send({ message: 'Bad Request, Please Add file correctly' });

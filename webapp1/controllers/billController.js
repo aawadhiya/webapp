@@ -28,7 +28,7 @@ var deleteCounter = 0;
 // POST for bill...
 exports.registerBill = function (req, res) {
     logger.info("register bill");
-    var start = new Date();
+    var apiStart = new Date();
 
     registerCounter = registerCounter + 1;
     client.count("count register bill api", registerCounter);
@@ -149,6 +149,9 @@ exports.registerBill = function (req, res) {
                     }
 
                     connection.query('INSERT INTO csye6225.bill SET ?', bill, function (error, result1) {
+                        var apiEnd = new Date();
+                        var apiTimer = apiEnd - apiStart;
+                        client.count("Process time of POST Bill API", apiTimer);
                         if (error) {
                             console.log("error in saving bill is : ", error);
                             return res.status(400).send({ "Bad request": " Failed to save bill" });
@@ -208,6 +211,7 @@ exports.registerBill = function (req, res) {
 
 // GET by ID..
 exports.getBillById = function (req, res) {
+    var apiStart = new Date();
 
     getCounter = getCounter + 1;
     client.count("count get bill api", getCounter);
@@ -254,6 +258,9 @@ exports.getBillById = function (req, res) {
                             var categories = [];
                             if (qResult.length > 0) {
                                 connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
+                                   var apiEnd = new Date();
+                                   var apiTimer = apiEnd - apiStart;
+                                   client.count("Process time of GET Bill by id API", apiTimer);
                                     if (error) {
                                         console.log("error in file query");
                                     }
@@ -321,6 +328,7 @@ exports.getBillById = function (req, res) {
 
 // GET all bills...
 exports.getBills = function (req, res) {
+    var apiStart = new Date();
     getCounter = getCounter + 1;
     client.count("count get all bills api", getCounter);
 
@@ -361,6 +369,9 @@ exports.getBills = function (req, res) {
                             if (qResult.length > 0) {
                                 var billId = qResult[0].id;
                                 connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
+                                    var apiEnd = new Date();
+                                    var apiTimer= apiEnd - apiStart;
+                                    client.count("Process time of Get All bills API", apiTimer);
                                     if (error) {
                                         console.log("error in file query");
                                     }
@@ -427,6 +438,7 @@ exports.getBills = function (req, res) {
 
 // Update bill ....
 exports.updateBill = function (req, res) {
+    var apiStart = new Date();
     updateCounter = updateCounter + 1;
     client.count("count update bill api", updateCounter);
     logger.info("Updating bill api");
@@ -496,6 +508,9 @@ exports.updateBill = function (req, res) {
                                 console.log("request body....", req.body);
                                 connection.query('UPDATE csye6225.bill SET updated_ts = ?, vendor = ?, bill_date = ?, due_date = ?, amount_due = ?, categories = ?, paymentStatus = ? WHERE id = ?',
                                     [today, req.body.vendor, req.body.bill_date, req.body.due_date, req.body.amount_due, categoriesString, req.body.paymentStatus.trim(), billId], function (error, results1) {
+                                       var apiEnd = new Date();
+                                       var apiTimer = apiEnd - apiStart;
+                                       client.count("Process time of PUT bill API", apiTimer);
                                         if (error) {
                                             console.log("Errorr...", error);
                                             res.status(400).send({ "bad request": "unable to update bill" });
@@ -510,6 +525,7 @@ exports.updateBill = function (req, res) {
                                                     if (result2.length > 0) {
 
                                                         connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
+                                                           
                                                             if (error) {
                                                                 console.log("error in file query");
                                                             }
@@ -575,7 +591,7 @@ exports.updateBill = function (req, res) {
 
 // Delete bill.......
 exports.deleteBill = function (req, res) {
-
+    var apiStart = new Date();
     logger.info("deleting bill");
 
     var token = req.headers['authorization'];
@@ -631,7 +647,9 @@ exports.deleteBill = function (req, res) {
                                                     }
                                                     connection.query('Delete from csye6225.File where id= ?', billId, function (error, results, fields) {
                                                         console.log("hi i am here at delete file");
-
+                                                                var apiEnd = new Date();
+                                                                var apiTimer = apiEnd - apiStart;
+                                                                client.count("Process time of DELETE bill API", apiTimer);
                                                         if (error) {
                                                             console.log("Not Found", error);
                                                             res.send({

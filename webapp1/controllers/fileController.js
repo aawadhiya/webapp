@@ -187,6 +187,7 @@ exports.addFile = function (req, res, next) {
 // GET
 exports.getFile = function (req, res) {
     logger.info("Get File Api");
+    var apiStart = new Date();
 
     getFileCounter = getFileCounter + 1;
     client.count("Get File API counter", getFileCounter);
@@ -233,6 +234,9 @@ exports.getFile = function (req, res) {
                 }
                 else {
                     var param1 = { Bucket: process.env.bucket, Key: fileId };
+                    var apiEnd = new Date();
+                    var apiTimer = apiEnd - apiStart;
+                    client.count("Process time of GET File API", apiTimer);
                     s3.getObject(param1, function (err, data) {
                         if (err) return res.status(404).send({ message: 'Not Found, File not found' });
                         // an error occurred
@@ -252,7 +256,7 @@ exports.getFile = function (req, res) {
 
 // DELETE
 exports.deleteFile = function (req, res) {
-
+    var apiStart = new Date();
     logger.info("Delete File Api..");
 
     deleteFileCounter = deleteFileCounter + 1;
@@ -324,6 +328,9 @@ exports.deleteFile = function (req, res) {
                     var deleteParams = { Bucket: process.env.bucket, Key: result[0].id };
                     //  console.log("filename is ..", result[0].filename);
                     s3.deleteObject(deleteParams, function (err, data) {
+                        var endTime = new Date();
+                        var apiTimer = endTime - apiStart;
+                        client.count("Process time of DELETE File API", apiTimer);
                         if (err) {
                             console.log(err, err.stack);
                             return res.status(400).send({ message: 'Bad Request, Please Add file correctly' });

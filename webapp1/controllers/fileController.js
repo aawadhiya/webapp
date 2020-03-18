@@ -18,14 +18,13 @@ var today = new Date();
 var addFileCounter = 0;
 var getFileCounter = 0;
 var deleteFileCounter = 0;
-var datbaseStart = new Date();
 var multer = require('multer')
 var upload = multer({ dest: 'tmp/', errorHandling: 'manual' })
 var datbaseStart = new Date();
 
 // POST
 exports.addFile = function (req, res, next) {
-    var appiStart = new Date();
+    var apiStart = new Date();
 
     logger.info("Add file Api");
 
@@ -53,8 +52,6 @@ exports.addFile = function (req, res, next) {
         return res.status(400).send({ message: 'Bad Request' });
     }
 
-    console.log("Request body is ..", req.file);
-    console.log("req file is..", req.file);
     if (req.file == null) return res.status(400).send({ message: 'Bad Request, file in form data cannot be null' });
     if (req.file.mimetype === "image/png" || req.file.mimetype === "image/jpg" || req.file.mimetype === "image/jpeg" || req.file.mimetype == "application/pdf") {
         connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results, fields) {
@@ -115,8 +112,8 @@ exports.addFile = function (req, res, next) {
                         s3.upload(uploadParams, function (err, data1) {
                             var s3called = new Date();
                             console.log(s3called);
-                            console.log(appiStart);
-                            var s3Timer = s3called - appiStart;
+                            console.log(apiStart);
+                            var s3Timer = s3called - apiStart;
                             console.log(s3Timer);
                             client.count("Process time for file upload to s3", s3Timer);
                             if (err) {
@@ -151,8 +148,8 @@ exports.addFile = function (req, res, next) {
                                         client.count("Process time of File database", dbapiTimer);
                                         var appicalled = new Date();
                                         console.log(appicalled);
-                                        console.log(appiStart);
-                                        var apiTimer = appicalled - appiStart;
+                                        console.log(apiStart);
+                                        var apiTimer = appicalled - apiStart;
                                         console.log(apiTimer);
                                         client.count("Process time of File API", apiTimer);
 
@@ -191,8 +188,8 @@ exports.addFile = function (req, res, next) {
 exports.getFile = function (req, res) {
     logger.info("Get File Api");
 
-  getFileCounter=getFileCounter+1;
-  client.count("Get File API counter",getFileCounter);
+    getFileCounter = getFileCounter + 1;
+    client.count("Get File API counter", getFileCounter);
 
     var token = req.headers['authorization'];
     if (!token) return res.status(401).send({ message: 'No authorization token' });
@@ -255,15 +252,12 @@ exports.getFile = function (req, res) {
 
 // DELETE
 exports.deleteFile = function (req, res) {
-    console.log("inside delete")
-    // console.log("filename is ..", req.file.filename);
-    // var fileName = req.file.filename;
 
-  logger.info("Delete Image Api");
+    logger.info("Delete File Api..");
 
-  deleteFileCounter=deleteFileCounter+1;
-  client.count("Delete File API counter",1);
-    
+    deleteFileCounter = deleteFileCounter + 1;
+    client.count("Delete File API counter", deleteFileCounter);
+
     var billId = req.params['billId'];
     var fileId = req.params['fileId'];
     console.log("req param id is...", req.params);

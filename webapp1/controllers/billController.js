@@ -19,9 +19,10 @@ const qs = require('querystring');
 var s3 = new aws.S3();
 var multer = require('multer')
 var upload = multer({ dest: 'tmp/', errorHandling: 'manual' })
-var registerCounter=0;
-var updateCounter=0;
-var getCounter=0;
+var registerCounter = 0;
+var updateCounter = 0;
+var getCounter = 0;
+var deleteCounter = 0;
 
 
 // POST for bill...
@@ -29,9 +30,9 @@ exports.registerBill = function (req, res) {
     logger.info("register bill");
     var start = new Date();
 
-    registerCounter=registerCounter+1;
-  client.count("count register bill api", 1);
-  
+    registerCounter = registerCounter + 1;
+    client.count("count register bill api", registerCounter);
+
     var today = new Date();
 
     var token = req.headers['authorization'];
@@ -154,7 +155,7 @@ exports.registerBill = function (req, res) {
                         }
                         else {
                             // Getting the bill data....
-                            console.log("eNTERED");
+                            console.log("Entered");
                             connection.query('SELECT * FROM csye6225.bill WHERE id = ?', bill.id, function (error, qResult) {
                                 console.log("Response23 object ", qResult[0]);
                                 if (error) {
@@ -208,10 +209,10 @@ exports.registerBill = function (req, res) {
 // GET by ID..
 exports.getBillById = function (req, res) {
 
-    getCounter=getCounter+1;
+    getCounter = getCounter + 1;
     client.count("count get bill api", getCounter);
-  
-    logger.info("getting bill");
+
+    logger.info("getting bill by bill id");
 
     var token = req.headers['authorization'];
     // Basic <Base64 encoded username and password>
@@ -320,10 +321,10 @@ exports.getBillById = function (req, res) {
 
 // GET all bills...
 exports.getBills = function (req, res) {
-    getCounter=getCounter+1;
-  client.count("count get bill api", getCounter);
+    getCounter = getCounter + 1;
+    client.count("count get all bills api", getCounter);
 
-  logger.info("getting bill");
+    logger.info("getting all bills");
 
     var token = req.headers['authorization'];
     // Basic <Base64 encoded username and password>
@@ -428,7 +429,7 @@ exports.getBills = function (req, res) {
 exports.updateBill = function (req, res) {
     updateCounter = updateCounter + 1;
     client.count("count update bill api", updateCounter);
-
+    logger.info("Updating bill api");
     var today = new Date();
     let date = ("0" + today.getDate()).slice(-2);
     let month = ("0" + (today.getMonth() + 1)).slice(-2);
@@ -507,7 +508,7 @@ exports.updateBill = function (req, res) {
                                                 else {
                                                     // var categories = [];
                                                     if (result2.length > 0) {
-                                                        
+
                                                         connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
                                                             if (error) {
                                                                 console.log("error in file query");
@@ -526,23 +527,23 @@ exports.updateBill = function (req, res) {
                                                                 console.log("att..", result2[0]['attachment']);
 
                                                             }
-                                                        
-                                                        console.log("att.1.", result2[0]['attachment']);
 
-                                                        var catArray = [];
-                                                        var categories = JSON.stringify(result2[0]['categories']);
-                                                        var catList = categories.split(',');
-                                                        console.log("CATList.....", catList);
-                                                        for (var i = 0; i < catList.length; i++) {
-                                                            catArray[i] = catList[i].replace(/[\\"\[\]]/g, '');
-                                                        }
-                                                        console.log("catArray..", catArray);
+                                                            console.log("att.1.", result2[0]['attachment']);
 
-                                                        result2[0].categories = catArray;
-                                                        console.log("bill..", result2[0]);
+                                                            var catArray = [];
+                                                            var categories = JSON.stringify(result2[0]['categories']);
+                                                            var catList = categories.split(',');
+                                                            console.log("CATList.....", catList);
+                                                            for (var i = 0; i < catList.length; i++) {
+                                                                catArray[i] = catList[i].replace(/[\\"\[\]]/g, '');
+                                                            }
+                                                            console.log("catArray..", catArray);
 
-                                                        return res.status(200).send(result2[0]);
-                                                    });
+                                                            result2[0].categories = catArray;
+                                                            console.log("bill..", result2[0]);
+
+                                                            return res.status(200).send(result2[0]);
+                                                        });
                                                     }
                                                     else {
                                                         return res.status(404).send({ message: 'Bill not found' });
@@ -576,7 +577,7 @@ exports.updateBill = function (req, res) {
 exports.deleteBill = function (req, res) {
 
     logger.info("deleting bill");
-  
+
     var token = req.headers['authorization'];
     // Basic <Base64 encoded username and password>   
     if (!token) return res.status(401).send({ message: 'unauthorized' });

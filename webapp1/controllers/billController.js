@@ -264,7 +264,8 @@ exports.getBillById = function (req, res) {
                                 connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
                                    var apiEnd = new Date();
                                    var apiTimer = apiEnd - apiStart;
-                                   client.count("Process time of GET Bill by id API", apiTimer);
+                                   //client.count("Process time of GET Bill by id API", apiTimer);
+                                   client.timing("Process time of GET Bill by Id API", apiTimer);
                                     if (error) {
                                         console.log("error in file query");
                                     }
@@ -375,7 +376,7 @@ exports.getBills = function (req, res) {
                                 connection.query('SELECT * FROM csye6225.File WHERE bill_id = ?', billId, function (error, fileResult) {
                                     var apiEnd = new Date();
                                     var apiTimer= apiEnd - apiStart;
-                                    client.count("Process time of Get All bills API", apiTimer);
+                                    client.timing("Process time of Get All bills API", apiTimer);
                                     if (error) {
                                         console.log("error in file query");
                                     }
@@ -514,7 +515,7 @@ exports.updateBill = function (req, res) {
                                     [today, req.body.vendor, req.body.bill_date, req.body.due_date, req.body.amount_due, categoriesString, req.body.paymentStatus.trim(), billId], function (error, results1) {
                                        var apiEnd = new Date();
                                        var apiTimer = apiEnd - apiStart;
-                                       client.count("Process time of PUT bill API", apiTimer);
+                                       client.timing("Process time of PUT bill API", apiTimer);
                                         if (error) {
                                             console.log("Errorr...", error);
                                             res.status(400).send({ "bad request": "unable to update bill" });
@@ -653,7 +654,7 @@ exports.deleteBill = function (req, res) {
                                                         console.log("hi i am here at delete file");
                                                                 var apiEnd = new Date();
                                                                 var apiTimer = apiEnd - apiStart;
-                                                                client.count("Process time of DELETE bill API", apiTimer);
+                                                                client.timing("Process time of DELETE bill API", apiTimer);
                                                         if (error) {
                                                             console.log("Not Found", error);
                                                             res.send({

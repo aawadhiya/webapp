@@ -59,9 +59,9 @@ exports.register = function (req, res) {
         }
         connection.query('INSERT INTO csye6225.users SET ?', user, function (error, results, fields) {
             var end = new Date();
-            var difference = end - start;
-            console.log(difference);
-            client.count("time taken to add user", difference);
+            var apiTimer = end - start;
+            console.log(apiTimer);
+            client.count("time taken to add user", apiTimer);
             if (error) {
                 console.log("Bad Request, cannot insert user", error);
                 res.send({
@@ -93,6 +93,7 @@ exports.register = function (req, res) {
 // Reference link for postman basic auth....
 // https://learning.getpostman.com/docs/postman/sending-api-requests/authorization/
 exports.login = function (req, res) {
+    var apiCalled = new Date();
     getCounter=getCounter+1;
     client.count("count user get api", getCounter);
     logger.info("get user");
@@ -128,6 +129,9 @@ exports.login = function (req, res) {
                     var result = mysql.format(sql, insert);
 
                     connection.query(result, function (error, result) {
+                        var apiEnd = new Date();
+                        var apiTimer = apiEnd - apiCalled;
+                        client.count("time taken to Login user", apiTimer);
                         if (error) {
                             console.log("Bad Request", error);
                             return res.status(404).send({ message: 'Not Found, no user exist with this email address' });
@@ -150,6 +154,7 @@ exports.login = function (req, res) {
 
 // Update existing user...
 exports.update = function (req, res) {
+    var apiCalled = new Date();
     updateCounter=updateCounter+1;
     client.count("count update api", updateCounter);
     logger.info("update User");
@@ -190,6 +195,9 @@ exports.update = function (req, res) {
                         var hash = bcrypt.hashSync(req.body.password, salt);
                         connection.query('UPDATE csye6225.users SET first_name = ?, last_name = ?, password = ?, account_modified = ? WHERE email_address = ?',
                             [req.body.first_name, req.body.last_name, hash, today, username], function (error, results) {
+                                var apiEnd = new Date();
+                                var apiTimer = apiEnd - apiCalled;
+                                client.count("time taken to add user", apiTimer);
                                 if (error) {
                                     return res.status(400).send({ "failed": "Bad Request" });
                                 }

@@ -32,6 +32,7 @@ exports.registerBill = function (req, res) {
 
     registerCounter = registerCounter + 1;
     client.count("count register bill api", registerCounter);
+    
 
     var today = new Date();
 
@@ -152,6 +153,10 @@ exports.registerBill = function (req, res) {
                         var apiEnd = new Date();
                         var apiTimer = apiEnd - apiStart;
                         client.count("Process time of POST Bill API", apiTimer);
+                        client.timing("Process time1 of POST Bill API", apiStart);
+                        client.timing("Process time2 of POST Bill API", apiTimer);
+                        logger.log( client.timing("Process time2 of POST Bill API", apiTimer));
+                        logger.log(  client.timing("Process time1 of POST Bill API", apiStart));
                         if (error) {
                             console.log("error in saving bill is : ", error);
                             return res.status(400).send({ "Bad request": " Failed to save bill" });

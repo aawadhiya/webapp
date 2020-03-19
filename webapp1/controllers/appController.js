@@ -61,7 +61,7 @@ exports.register = function (req, res) {
             var end = new Date();
             var apiTimer = end - start;
             console.log(apiTimer);
-            client.timing("time taken to add user", apiTimer);
+            client.timing("time taken to register user", apiTimer);
             if (error) {
                 console.log("Bad Request, cannot insert user", error);
                 res.send({
@@ -197,7 +197,7 @@ exports.update = function (req, res) {
                             [req.body.first_name, req.body.last_name, hash, today, username], function (error, results) {
                                 var apiEnd = new Date();
                                 var apiTimer = apiEnd - apiCalled;
-                                client.timing("time taken to add user", apiTimer);
+                                client.timing("time taken to update user", apiTimer);
                                 if (error) {
                                     return res.status(400).send({ "failed": "Bad Request" });
                                 }

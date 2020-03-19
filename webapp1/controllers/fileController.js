@@ -116,6 +116,7 @@ exports.addFile = function (req, res, next) {
                             var s3Timer = s3called - apiStart;
                             console.log(s3Timer);
                             client.timing("Process time for file upload to s3", s3Timer);
+
                             if (err) {
                                 console.log(err);
                                 return res.status(400).send({ message: 'Bad Request, Please Add File correctly' });
@@ -145,13 +146,13 @@ exports.addFile = function (req, res, next) {
                                     connection.query('INSERT INTO csye6225.File SET ?', file, function (error, results, fields) {
                                         var dbapiTimer = appicalled - databasecalled;
                                         console.log(dbapiTimer);
-                                        client.count("Process time of File database", dbapiTimer);
+                                        client.count("Process time of adding File to database", dbapiTimer);
                                         var appicalled = new Date();
                                         console.log(appicalled);
                                         console.log(apiStart);
                                         var apiTimer = appicalled - apiStart;
                                         console.log(apiTimer);
-                                        client.count("Process time of File API", apiTimer);
+                                        client.timing("Process time of File API", apiTimer);
 
                                         if (error) {
                                             console.log("Bad Request", error);

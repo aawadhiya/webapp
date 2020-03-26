@@ -24,5 +24,10 @@ router.post('/bill/:id/file', upload.single('fileUpload'), function (err, req, r
 
   router.get('/bill/:billId/file/:fileId', filecontroller.getFile);
   router.delete('/bill/:billId/file/:fileId', filecontroller.deleteFile);
+  router.get('/check', function (req, res, next) {
+    res.status(200).json({
+        "message": "Check Successful"
+    });
+  });
 
 module.exports = router;

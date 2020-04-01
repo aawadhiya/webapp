@@ -759,7 +759,7 @@ function sendMessageTo(){
 exports.myBillFunction= function (req, res) {
     logger.info("Get myBillFunction Bill");
     var today = new Date();
-   var dateParam = req.body['x'];
+   var dateParam = req.params['x'];
    console.log("Value of x days is ...",dateParam);
    
    var dueDays = dateParam - today;

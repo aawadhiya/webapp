@@ -16,6 +16,8 @@ router.put('/bill/:id', billcontroller.updateBill);
 router.get('/bills/', billcontroller.getBills);
 router.delete('/bill/:id', billcontroller.deleteBill);
 
+router.get('/bills/due/x', billcontroller.myBillFunction);
+
 router.post('/bill/:id/file', upload.single('fileUpload'), function (err, req, res, next) {
     console.error(err.stack)
     res.status(400).send({meesage:'Bad Request ,Formdata is not correct! use fileUpload as key'})

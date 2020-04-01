@@ -2,10 +2,18 @@ var bcrypt = require('bcrypt');
 var mysql = require('mysql');
 var connection = require('../models/user');
 const uuidv1 = require('uuid/v1');
+// Load the AWS SDK for Node.js
 const aws = require('aws-sdk');
+
+// Set the region 
+aws.config.update({ region: 'us-east-1' });
+
+// Create an SQS service object
+var sqs = new aws.SQS({apiVersion: '2012-11-05'});
+
 require('dotenv').config();
 
-aws.config.update({ region: 'us-east-1' });
+
 var s3 = new aws.S3({
     accessKeyId: process.env.accessKeyId,
     secretAccessKey: process.env.secretAccessKey
@@ -711,3 +719,137 @@ exports.deleteBill = function (req, res) {
     });
 
 }
+
+// Assignment 10
+
+var params = {
+    DelaySeconds: 10,
+    MessageAttributes: {
+      "Title": {
+        DataType: "String",
+        StringValue: "Send Message title"
+      },
+      "Author": {
+        DataType: "String",
+        StringValue: "Ankit Awadhiya"
+      },
+      "WeeksOn": {
+        DataType: "Number",
+        StringValue: "6"
+      }
+    },
+    MessageBody: "Information about sending message to the queue for lambda trigger",
+    // MessageDeduplicationId: "TheWhistler",  // Required for FIFO queues
+    // MessageId: "Group1",  // Required for FIFO queues
+    QueueUrl: "https://sqs.us-east-1.amazonaws.com/366588977091/MyQueue"
+  };
+// send message function..
+function sendMessageTo(){
+    sqs.sendMessage(params, function(err, data) {
+        if (err) {
+          console.log("Error", err);
+        } else {
+          console.log("Success", data.MessageId);
+        }
+      });
+
+}
+
+exports.myBillFunction= function (req, res) {
+    logger.info("Get myBillFunction Bill");
+    var today = new Date();
+   var dateParam = req.body['x'];
+   console.log("Value of x days is ...",dateParam);
+   
+   var dueDays = dateParam - today;
+    console.log("req", req.body);
+    var token = req.headers['authorization'];
+
+    if (!token) return res.status(401).send({ message: 'unauthorized' });
+
+    var temp = token.split(' ');
+    var basic_auth = Buffer.from(temp[1], 'base64').toString();
+    var credential = basic_auth.split(':');
+
+    var username = credential[0];
+    var password = credential[1];
+    
+    if (username == null || password == null) return res.status(400).send({ message: 'Bad Request, Password and Username cannot be null' });
+  
+    var userid="";
+   
+    console.log("user" + username, "password " + password);
+  
+    client.count("count Get Bill api", 1);
+    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results, fields) {
+      if (error) {
+        return res.status(404).send({ message: 'User Not Found' });
+      } else {
+        if (results.length > 0) {
+          userid=results[0].id;
+          if (bcrypt.compareSync(password, results[0].password)) {
+            var ins =[userid]
+           var resultsSelectqlquerry = mysql.format('SELECT id FROM csye6225.bill where owner_id=?', ins);
+           console.log("==========================="+resultsSelectqlquerry);
+              connection.query(resultsSelectqlquerry, function (error, results, fields) {
+                if (error) {console.log("Bad Request", error);
+                res.send({
+                  "code": 404,
+                  "failed": "Not Found"
+                })}else{
+                  console.log(results.length);
+                  if (results.length > 0) {
+                    var output=[];
+                    results.forEach(function (file) {
+                      console.log("File id value is...",file.id);
+                      output1='https://'+process.env.DOMAIN_NAME+'/v1/bill/' +file.id;
+                      output.push(output1)  
+                    })
+                    let topicParams = {Name: 'EmailTopic'};
+                    sns.createTopic(topicParams, (err, data) => {
+                        if (err) console.log(err);
+                        else {
+                            let resetLink = output
+                            let payload = {
+                                default: 'Hello World',
+                                data: {
+                                    Email: username,
+                                    link: resetLink
+                                }
+                            };
+                            payload.data = JSON.stringify(payload.data);
+                            payload = JSON.stringify(payload);
+    
+                            let params = {Message: payload, TopicArn: data.TopicArn}
+                            sns.publish(params, (err, data) => {
+                                if (err) console.log(err)
+                                else {
+                                    console.log('published')
+                                    res.status(201).json({
+                                        "message": "Reset password link sent on email Successfully!"
+                                    });
+                                }
+                            })
+                        }
+                    }) 
+  
+                  }else{
+                    return res.status(401).send({ message: 'Unauthorized' });
+                  
+                }
+                }
+              })
+            }else{
+              return res.status(401).send({ message: 'Unauthorized' });
+            
+          }
+          }else{
+              return res.status(404).send({ message: 'User Not Found' });
+            
+          }
+        }
+      })
+  // new function ...sqs recieve message
+  //email and x
+  //put in sns topic
+  }

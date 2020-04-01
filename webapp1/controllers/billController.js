@@ -743,7 +743,7 @@ var params = {
     MessageBody: "Information about sending message to the queue for lambda trigger",
     // MessageDeduplicationId: "TheWhistler",  // Required for FIFO queues
     // MessageId: "Group1",  // Required for FIFO queues
-    QueueUrl: "https://sqs.us-east-1.amazonaws.com/366588977091/MyQueue"
+    QueueUrl: process.env.QueueUrl
   };
 // send message function..
 function sendMessageTo(){

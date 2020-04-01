@@ -16,7 +16,7 @@ router.put('/bill/:id', billcontroller.updateBill);
 router.get('/bills/', billcontroller.getBills);
 router.delete('/bill/:id', billcontroller.deleteBill);
 
-router.get('/bills/due/x', billcontroller.myBillFunction);
+router.get('/bills/due/:x', billcontroller.myBillFunction);
 
 router.post('/bill/:id/file', upload.single('fileUpload'), function (err, req, res, next) {
     console.error(err.stack)

@@ -61,7 +61,6 @@ const filecontroller = require("../controllers/fileController");
 // setTimeout(getMessages, 100);
 
 //=====
-
 var queueURL = process.env.QueueUrl;
 router.get('/check', function (req, res, next) {
   res.status(200).json({

@@ -833,7 +833,7 @@ exports.myBillFunction= function (req, res) {
       
                               let params = {Message: payload, TopicArn: process.env.SNSTOPIC}
                               sns.publish(params, (err, data) => {
-                                  if (err) console.log(err)
+                                  if (err) console.log("snsPublish",err)
                                   else {
                                       console.log('published')
                                     //   res.status(201).json({

@@ -727,7 +727,7 @@ exports.deleteBill = function (req, res) {
 
 exports.myBillFunction= function (req, res) {
 
-
+    console.log("QueuURL....", process.env.QueueUrl)
     logger.info("Get myBillFunction Bill");
     var today = new Date();
    var dateParam = req.params['x'];
@@ -772,6 +772,9 @@ exports.myBillFunction= function (req, res) {
               console.log("Error", err);
             } else {
               console.log("Success", data.MessageId);
+              res.status(201).json({
+                "message": "Reset password link sent on email Successfully!"
+            });
             }
           });
     
@@ -800,12 +803,40 @@ exports.myBillFunction= function (req, res) {
                 })}else{
                   console.log(results.length);
                   if (results.length > 0) {
-                   
+                    var output=[];
+                    results.forEach(function (file) {
+                      console.log("File id value is...",file.id);
+                      output1='https://'+process.env.DOMAIN_NAME+'/v1/bill/' +file.id;
+                      output.push(output1)  
+                    })
+                    let topicParams = {Name: 'EmailTopic'};
+                    
+                    sns.createTopic(topicParams, (err, data) => {
+                        if (err) console.log(err);
+                        else {
+                            let resetLink = output
+                            let payload = {
+                                default: 'Hello World',
+                                data: {
+                                    Email: username,
+                                    link: resetLink
+                                }
+                            };
+                            payload.data = JSON.stringify(payload.data);
+                            payload = JSON.stringify(payload);
+    
+                            let params = {Message: payload, TopicArn: data.TopicArn}
+                            sns.publish(params, (err, data) => {
+                                if (err) console.log(err)
+                                else {
                                     console.log('published')
                                     res.status(201).json({
                                         "message": "Reset password link sent on email Successfully!"
                                     });
-                       
+                                }
+                            })
+                        }
+                    }) 
   
                   }else{
                     return res.status(401).send({ message: 'Unauthorized' });                  

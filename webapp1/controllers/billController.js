@@ -781,7 +781,6 @@ exports.myBillFunction= function (req, res) {
           console.log("user" + username, "password " + password);
   
     client.count("count Get Bill api", 1);
-
           var userid="";
     connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results, fields) {
         if (error) {

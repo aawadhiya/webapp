@@ -813,14 +813,14 @@ exports.myBillFunction= function (req, res) {
                         output1='https://'+process.env.DOMAIN_NAME+'/v1/bill/' +file.id;
                         output.push(output1)  
                       })
-                    //   let topicParams = {
-                    //       Name: process.env.SNSTOPIC
+                      let topicParams = {
+                          Name: process.env.SNSTOPIC
                           
-                    //   };  
-                      let topicParams = {Name: 'EmailTopic'};
-                      sns.createTopic(topicParams, (err, data) => {
-                          if (err) console.log(err);
-                          else {          
+                      };  
+                     // let topicParams = {Name: 'EmailTopic'};
+                    //   sns.createTopic(topicParams, (err, data) => {
+                    //       if (err) console.log(err);
+                    //       else {          
                               let resetLink = output
                               let payload = {
                                   default: 'Hello World',
@@ -842,8 +842,8 @@ exports.myBillFunction= function (req, res) {
                                     //   });
                                   }
                               })
-                            }
-                            });
+                           // }
+                        //    });
     
                     }
                   }

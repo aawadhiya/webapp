@@ -49,7 +49,9 @@ sqs.receiveMessage(params, function(err, data) {
           console.log("date value is.....",data.Messages[0].MessageAttributes.DueDate);
           console.log("email value is.....",data.Messages[0].MessageAttributes.email_address);
           var date = data.Messages[0].MessageAttributes.DueDate;
+          console.log("dateee is ....", date.StringValue);
           var email = data.Messages[0].MessageAttributes.email_address;
+          console.log("dateee is ....", email.StringValue);
     
     var deleteParams = {
       QueueUrl: queueURL,

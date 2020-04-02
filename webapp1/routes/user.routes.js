@@ -10,7 +10,6 @@ aws.config.update({ region: 'us-east-1' });
 // Create an SQS service object
 var sqs = new aws.SQS({apiVersion: '2012-11-05'});
 require('dotenv').config();
-
 const appcontroller = require("../controllers/appController");
 const billcontroller = require("../controllers/billController");
 const filecontroller = require("../controllers/fileController");

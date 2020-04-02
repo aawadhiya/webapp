@@ -34,6 +34,7 @@ var params = {
 };
 console.log("params value in recieve message",params);
 sqs.receiveMessage(params, function(err, data) {
+  console.log("recieve message data....",data);
   if (err) {
     console.log("Receive Error", err);
   } else if (data.Messages) {

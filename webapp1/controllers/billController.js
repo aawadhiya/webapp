@@ -724,20 +724,23 @@ exports.deleteBill = function (req, res) {
 
 // Assignment 10
 
+
+exports.myBillFunction= function (req, res) {
+
 var params = {
     DelaySeconds: 10,
     MessageAttributes: {
-      "Title": {
+      "Bill": {
         DataType: "String",
-        StringValue: "Send Message title"
+        StringValue: "Send Bill title"
       },
-      "Author": {
+      "Owner": {
         DataType: "String",
         StringValue: "Ankit Awadhiya"
       },
-      "WeeksOn": {
-        DataType: "Number",
-        StringValue: "6"
+      "DueDate": {
+        DataType: "String",
+        StringValue: "sample date"
       }
     },
     MessageBody: "Information about sending message to the queue for lambda trigger",
@@ -756,8 +759,6 @@ function sendMessageTo(){
       });
 
 }
-
-exports.myBillFunction= function (req, res) {
     logger.info("Get myBillFunction Bill");
     var today = new Date();
    var dateParam = req.params['x'];
@@ -808,6 +809,7 @@ exports.myBillFunction= function (req, res) {
                       output.push(output1)  
                     })
                     let topicParams = {Name: 'EmailTopic'};
+                    
                     sns.createTopic(topicParams, (err, data) => {
                         if (err) console.log(err);
                         else {

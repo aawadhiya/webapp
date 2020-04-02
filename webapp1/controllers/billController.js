@@ -783,7 +783,7 @@ exports.myBillFunction= function (req, res) {
     client.count("count Get Bill api", 1);
 
           var userid="";
-    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', email, function (error, results, fields) {
+    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', username, function (error, results, fields) {
         if (error) {
           return res.status(404).send({ message: 'User Not Found' });
         } else {
@@ -807,7 +807,7 @@ exports.myBillFunction= function (req, res) {
                         output.push(output1)  
                       })
                       let topicParams = {
-                          Name: process.env.SNSTOPIC
+                          Name: "SNSTopicMyBill"
                           
                       };  
                     
@@ -825,7 +825,7 @@ exports.myBillFunction= function (req, res) {
                               payload.data = JSON.stringify(payload.data);
                               payload = JSON.stringify(payload);
       
-                              let params = {Message: payload, TopicArn: process.env.SNSTOPIC}
+                              let params = {Message: payload, TopicArn: data.TopicArn}
                               sns.publish(params, (err, data) => {
                                   if (err) console.log("snsPublish",err)
                                   else {

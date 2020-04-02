@@ -2,10 +2,53 @@ const express = require("express");
 const router = express.Router();
 var multer  = require('multer')
 var upload = multer({ dest: 'tmp/',errorHandling: 'manual' })
+// Load the AWS SDK for Node.js
+var aws = require('aws-sdk');
+// Set the region
+aws.config.update({ region: 'us-east-1' });
+
+// Create an SQS service object
+var sqs = new aws.SQS({apiVersion: '2012-11-05'});
+require('dotenv').config();
 
 const appcontroller = require("../controllers/appController");
 const billcontroller = require("../controllers/billController");
 const filecontroller = require("../controllers/fileController");
+
+
+
+var queueURL = process.env.QueueUrl;
+
+var params = {
+ AttributeNames: [
+    "SentTimestamp"
+ ],
+ MaxNumberOfMessages: 10,
+ MessageAttributeNames: [
+    "All"
+ ],
+ QueueUrl: queueURL,
+ VisibilityTimeout: 20,
+ WaitTimeSeconds: 0
+};
+
+sqs.receiveMessage(params, function(err, data) {
+  if (err) {
+    console.log("Receive Error", err);
+  } else if (data.Messages) {
+    var deleteParams = {
+      QueueUrl: queueURL,
+      ReceiptHandle: data.Messages[0].ReceiptHandle
+    };
+    sqs.deleteMessage(deleteParams, function(err, data) {
+      if (err) {
+        console.log("Delete Error", err);
+      } else {
+        console.log("Message Deleted", data);
+      }
+    });
+  }
+});
 
 router.post('/user', appcontroller.register);
 router.get('/user/self', appcontroller.login);

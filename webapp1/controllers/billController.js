@@ -821,7 +821,7 @@ exports.myBillFunction= function (req, res) {
                               let payload = {
                                   default: 'Hello World',
                                   data: {
-                                      Email: username,
+                                      Email: email,
                                       link: resetLink
                                   }
                               };

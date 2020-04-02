@@ -24,40 +24,40 @@ router.get('/check', function (req, res, next) {
   });
 });
 
-var params = {
- AttributeNames: [
-    "SentTimestamp"
- ],
- MaxNumberOfMessages: 10,
- MessageAttributeNames: [
-   "email_address",
-    "DueDate"
- ],
- QueueUrl: queueURL,
- VisibilityTimeout: 20,
- WaitTimeSeconds: 0
-};
-console.log("params value in recieve message",params);
-sqs.receiveMessage(params, function(err, data) {
+// var params = {
+//  AttributeNames: [
+//     "SentTimestamp"
+//  ],
+//  MaxNumberOfMessages: 10,
+//  MessageAttributeNames: [
+//    "email_address",
+//     "DueDate"
+//  ],
+//  QueueUrl: queueURL,
+//  VisibilityTimeout: 20,
+//  WaitTimeSeconds: 0
+// };
+// console.log("params value in recieve message",params);
+// sqs.receiveMessage(params, function(err, data) {
   
-  if (err) {
-    console.log("Receive Error", err);
+//   if (err) {
+//     console.log("Receive Error", err);
 
-  } else if (data.Messages) {
-    console.log("recieve message data....",data);
-    var deleteParams = {
-      QueueUrl: queueURL,
-      ReceiptHandle: data.Messages[0].ReceiptHandle
-    };
-    sqs.deleteMessage(deleteParams, function(err, data) {
-      if (err) {
-        console.log("Delete Error", err);
-      } else {
-        console.log("Message Deleted", data);
-      }
-    });
-  }
-});
+//   } else if (data.Messages) {
+//     console.log("recieve message data....",data);
+//     var deleteParams = {
+//       QueueUrl: queueURL,
+//       ReceiptHandle: data.Messages[0].ReceiptHandle
+//     };
+//     sqs.deleteMessage(deleteParams, function(err, data) {
+//       if (err) {
+//         console.log("Delete Error", err);
+//       } else {
+//         console.log("Message Deleted", data);
+//       }
+//     });
+//   }
+// });
 
 router.post('/user', appcontroller.register);
 router.get('/user/self', appcontroller.login);

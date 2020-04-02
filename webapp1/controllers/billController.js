@@ -818,7 +818,7 @@ exports.myBillFunction= function (req, res) {
                           Name: process.env.SNSTOPIC
                           
                       };  
-                     let topicParams = {Name: process.env.SNSTOPIC};
+                    
                       sns.createTopic(topicParams, (err, data) => {
                           if (err) console.log(err);
                           else {          

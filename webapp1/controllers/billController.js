@@ -773,14 +773,10 @@ exports.myBillFunction= function (req, res) {
             } else {
               console.log("Success", data.MessageId);
               res.status(201).json({
-                "message": "Reset password link sent on email Successfully!"
+                "message": "Reset password link sent on email Successfully...send sqs!"
             });
             }
-          });
-    
-    
-
-    
+          }); 
    
     console.log("user" + username, "password " + password);
   
@@ -792,6 +788,7 @@ exports.myBillFunction= function (req, res) {
   }
 
   exports.getRecieveData= function (email, dueDate, res) {
+      console.log("email in called function...",email);
     var userid="";
     connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', email, function (error, results, fields) {
         if (error) {

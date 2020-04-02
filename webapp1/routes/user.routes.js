@@ -25,13 +25,14 @@ var params = {
  ],
  MaxNumberOfMessages: 10,
  MessageAttributeNames: [
-    "All"
+   "email_address",
+    "DueDate"
  ],
  QueueUrl: queueURL,
  VisibilityTimeout: 20,
  WaitTimeSeconds: 0
 };
-
+console.log("params value in recieve message",params);
 sqs.receiveMessage(params, function(err, data) {
   if (err) {
     console.log("Receive Error", err);

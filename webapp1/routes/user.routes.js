@@ -18,6 +18,11 @@ const filecontroller = require("../controllers/fileController");
 
 
 var queueURL = process.env.QueueUrl;
+router.get('/check', function (req, res, next) {
+  res.status(200).json({
+      "message": "Check Successful"
+  });
+});
 
 var params = {
  AttributeNames: [
@@ -34,10 +39,12 @@ var params = {
 };
 console.log("params value in recieve message",params);
 sqs.receiveMessage(params, function(err, data) {
-  console.log("recieve message data....",data);
+  
   if (err) {
     console.log("Receive Error", err);
+
   } else if (data.Messages) {
+    console.log("recieve message data....",data);
     var deleteParams = {
       QueueUrl: queueURL,
       ReceiptHandle: data.Messages[0].ReceiptHandle
@@ -71,10 +78,6 @@ router.post('/bill/:id/file', upload.single('fileUpload'), function (err, req, r
 
   router.get('/bill/:billId/file/:fileId', filecontroller.getFile);
   router.delete('/bill/:billId/file/:fileId', filecontroller.deleteFile);
-  router.get('/check', function (req, res, next) {
-    res.status(200).json({
-        "message": "Check Successful"
-    });
-  });
+  
 
 module.exports = router;

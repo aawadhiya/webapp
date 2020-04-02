@@ -4,7 +4,7 @@ var connection = require('../models/user');
 const uuidv1 = require('uuid/v1');
 // Load the AWS SDK for Node.js
 const aws = require('aws-sdk');
-
+var router = require('../routes/user.routes');
 // Set the region 
 aws.config.update({ region: 'us-east-1' });
 var sns = new aws.SNS({});

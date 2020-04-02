@@ -819,8 +819,7 @@ exports.myBillFunction= function (req, res) {
                       let topicParams = {
                           Name: process.env.SNSTOPIC
                           
-                      };
-                      
+                      };                     
                               let resetLink = output
                               let payload = {
                                   default: 'Hello World',
@@ -837,9 +836,9 @@ exports.myBillFunction= function (req, res) {
                                   if (err) console.log(err)
                                   else {
                                       console.log('published')
-                                      res.status(201).json({
-                                          "message": "Reset password link sent on email Successfully!"
-                                      });
+                                    //   res.status(201).json({
+                                    //       "message": "Reset password link sent on email Successfully!"
+                                    //   });
                                   }
                               })
                           

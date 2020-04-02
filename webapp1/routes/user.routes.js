@@ -52,7 +52,7 @@ sqs.receiveMessage(params, function(err, data) {
           console.log("dateee is ....", date.StringValue);
           var email = data.Messages[0].MessageAttributes.email_address;
           console.log("dateee is ....", email.StringValue);
-    
+          billcontroller.getRecieveData(email, date);
     var deleteParams = {
       QueueUrl: queueURL,
       ReceiptHandle: data.Messages[0].ReceiptHandle

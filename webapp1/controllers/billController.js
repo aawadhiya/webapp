@@ -772,7 +772,7 @@ exports.myBillFunction= function (req, res) {
               console.log("Error", err);
             } else {
               console.log("Success", data.MessageId);
-              router.testFunction();
+            //   router.testFunction;
               res.status(201).json({
                 "message": "Reset password link sent on email Successfully...send sqs!"
             });

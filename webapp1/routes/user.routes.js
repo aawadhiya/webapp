@@ -86,7 +86,7 @@ var params = {
  WaitTimeSeconds: 0
 };
 console.log("params value in recieve message",params);
-function testFunction(){
+//testFunction=function(){
   sqs.receiveMessage(params, function(err, data) {
   
     if (err) {
@@ -118,7 +118,7 @@ function testFunction(){
       });
     }
   });
-}
+//}
 
 
 router.post('/user', appcontroller.register);

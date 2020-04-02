@@ -773,15 +773,89 @@ exports.myBillFunction= function (req, res) {
             } else {
               console.log("Success", data.MessageId);
             //   router.testFunction;
-              res.status(201).json({
-                "message": "Reset password link sent on email Successfully...send sqs!"
-            });
+             // res.status(201).json({
+              //  "message": "Reset password link sent on email Successfully...send sqs!"
+           // });
             }
           }); 
-   
-    console.log("user" + username, "password " + password);
+          console.log("user" + username, "password " + password);
   
     client.count("count Get Bill api", 1);
+
+          var userid="";
+    connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', email, function (error, results, fields) {
+        if (error) {
+          return res.status(404).send({ message: 'User Not Found' });
+        } else {
+          if (results.length > 0) {
+            userid=results[0].id;           
+              var ins =[userid]
+             var resultsSelectqlquerry = mysql.format('SELECT id FROM csye6225.bill where owner_id=?', ins);
+             console.log("==========================="+resultsSelectqlquerry);
+                connection.query(resultsSelectqlquerry, function (error, results, fields) {
+                  if (error) {console.log("Bad Request", error);
+                  res.send({
+                    "code": 404,
+                    "failed": "Not Found"
+                  })}else{
+                    console.log(results.length);
+                    if (results.length > 0) {
+                      var output=[];
+                      results.forEach(function (file) {
+                        console.log("File id value is...",file.id);
+                        output1='https://'+process.env.DOMAIN_NAME+'/v1/bill/' +file.id;
+                        output.push(output1)  
+                      })
+                      let topicParams = {
+                          Name: process.env.SNSTOPIC
+                          
+                      };  
+                    
+                      sns.createTopic(topicParams, (err, data) => {
+                          if (err) console.log(err);
+                          else {          
+                              let resetLink = output
+                              let payload = {
+                                  default: 'Hello World',
+                                  data: {
+                                      Email: email,
+                                      link: resetLink
+                                  }
+                              };
+                              payload.data = JSON.stringify(payload.data);
+                              payload = JSON.stringify(payload);
+      
+                              let params = {Message: payload, TopicArn: process.env.SNSTOPIC}
+                              sns.publish(params, (err, data) => {
+                                  if (err) console.log("snsPublish",err)
+                                  else {
+                                      console.log('published')
+                                       res.status(201).json({
+                                           "message": "Reset password link sent on email Successfully!"
+                                       });
+                                  }
+                              })
+                           }
+                           });
+    
+                    }
+                    else{
+                        return res.status(401).send({ message: 'Unauthorized' });
+                      
+                    }
+                  }
+                })
+             
+            }
+            else{
+                return res.status(401).send({ message: 'Unauthorized' });
+              
+            }
+          }
+          
+        })
+   
+    
    
   // new function ...sqs recieve message
   //email and x

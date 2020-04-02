@@ -772,6 +772,7 @@ exports.myBillFunction= function (req, res) {
               console.log("Error", err);
             } else {
               console.log("Success", data.MessageId);
+              router.testFunction();
               res.status(201).json({
                 "message": "Reset password link sent on email Successfully...send sqs!"
             });
@@ -817,10 +818,10 @@ exports.myBillFunction= function (req, res) {
                           Name: process.env.SNSTOPIC
                           
                       };  
-                     // let topicParams = {Name: 'EmailTopic'};
-                    //   sns.createTopic(topicParams, (err, data) => {
-                    //       if (err) console.log(err);
-                    //       else {          
+                     let topicParams = {Name: process.env.SNSTOPIC};
+                      sns.createTopic(topicParams, (err, data) => {
+                          if (err) console.log(err);
+                          else {          
                               let resetLink = output
                               let payload = {
                                   default: 'Hello World',
@@ -842,8 +843,8 @@ exports.myBillFunction= function (req, res) {
                                     //   });
                                   }
                               })
-                           // }
-                        //    });
+                           }
+                           });
     
                     }
                   }

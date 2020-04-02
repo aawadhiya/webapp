@@ -727,38 +727,7 @@ exports.deleteBill = function (req, res) {
 
 exports.myBillFunction= function (req, res) {
 
-var params = {
-    DelaySeconds: 10,
-    MessageAttributes: {
-      "Bill": {
-        DataType: "String",
-        StringValue: "Send Bill title"
-      },
-      "Owner": {
-        DataType: "String",
-        StringValue: "Ankit Awadhiya"
-      },
-      "DueDate": {
-        DataType: "String",
-        StringValue: "sample date"
-      }
-    },
-    MessageBody: "Information about sending message to the queue for lambda trigger",
-    // MessageDeduplicationId: "TheWhistler",  // Required for FIFO queues
-    // MessageId: "Group1",  // Required for FIFO queues
-    QueueUrl: process.env.QueueUrl
-  };
-// send message function..
-function sendMessageTo(){
-    sqs.sendMessage(params, function(err, data) {
-        if (err) {
-          console.log("Error", err);
-        } else {
-          console.log("Success", data.MessageId);
-        }
-      });
 
-}
     logger.info("Get myBillFunction Bill");
     var today = new Date();
    var dateParam = req.params['x'];
@@ -779,6 +748,35 @@ function sendMessageTo(){
     
     if (username == null || password == null) return res.status(400).send({ message: 'Bad Request, Password and Username cannot be null' });
   
+    var params = {
+        DelaySeconds: 10,
+        MessageAttributes: {
+          "email_address": {
+            DataType: "String",
+            StringValue: username
+          },
+          
+          "DueDate": {
+            DataType: "Number",
+            StringValue: dateParam
+          }
+        },
+        MessageBody: "Information about sending message to the queue for lambda trigger",
+        // MessageDeduplicationId: "TheWhistler",  // Required for FIFO queues
+        // MessageId: "Group1",  // Required for FIFO queues
+        QueueUrl: process.env.QueueUrl
+      };
+    // send message function..    
+        sqs.sendMessage(params, function(err, data) {
+            if (err) {
+              console.log("Error", err);
+            } else {
+              console.log("Success", data.MessageId);
+            }
+          });
+    
+    
+
     var userid="";
    
     console.log("user" + username, "password " + password);
@@ -838,8 +836,7 @@ function sendMessageTo(){
                     }) 
   
                   }else{
-                    return res.status(401).send({ message: 'Unauthorized' });
-                  
+                    return res.status(401).send({ message: 'Unauthorized' });                  
                 }
                 }
               })

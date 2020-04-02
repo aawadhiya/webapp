@@ -45,9 +45,12 @@ sqs.receiveMessage(params, function(err, data) {
 
   } else if (data.Messages) {
     console.log("recieve message data....",data);
-    console.log("recieve message data attributes....",data.Attributes);
-    console.log("recieve message data attributes....",data.Attributes[0]);
-    console.log("recieve message data attributes....",data.Attributes[1]);
+    console.log("recieve message data attributes....",data.Messages[0].MessageAttributes);
+          console.log("date value is.....",data.Messages[0].MessageAttributes.DueDate);
+          console.log("email value is.....",data.Messages[0].MessageAttributes.email_address);
+          var date = data.Messages[0].MessageAttributes.DueDate;
+          var email = data.Messages[0].MessageAttributes.email_address;
+    
     var deleteParams = {
       QueueUrl: queueURL,
       ReceiptHandle: data.Messages[0].ReceiptHandle

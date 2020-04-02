@@ -45,6 +45,9 @@ sqs.receiveMessage(params, function(err, data) {
 
   } else if (data.Messages) {
     console.log("recieve message data....",data);
+    console.log("recieve message data attributes....",data.Attributes);
+    console.log("recieve message data attributes....",data.Attributes[0]);
+    console.log("recieve message data attributes....",data.Attributes[1]);
     var deleteParams = {
       QueueUrl: queueURL,
       ReceiptHandle: data.Messages[0].ReceiptHandle

@@ -798,19 +798,19 @@ exports.myBillFunction = function (req, res) {
     };
     console.log("params value in recieve message", recieveParams);
     //testFunction=function(){
-    sqs.receiveMessage(recieveParams, function (err, data) {
+    sqs.receiveMessage(recieveParams, function (err, dataRecieve) {
 
         if (err) {
             console.log("Receive Error", err);
 
-        } else if (data && data.Messages && data.Messages.length > 0) {
-            console.log("recieve message data....", data);
-            console.log("recieve message data attributes....", data.Messages[0].MessageAttributes);
-            console.log("date value is.....", data.Messages[0].MessageAttributes.DueDate);
-            console.log("email value is.....", data.Messages[0].MessageAttributes.email_address);
-            var date = data.Messages[0].MessageAttributes.DueDate.StringValue;
-            console.log("dateee is ....", date.StringValue);
-            var email = data.Messages[0].MessageAttributes.email_address.StringValue;
+        } else if (dataRecieve && dataRecieve.Messages && dataRecieve.Messages.length > 0) {
+            console.log("recieve message data....", dataRecieve);
+            console.log("recieve message data attributes....", dataRecieve.Messages[0].MessageAttributes);
+            console.log("date value is.....", dataRecieve.Messages[0].MessageAttributes.DueDate);
+            console.log("email value is.....", dataRecieve.Messages[0].MessageAttributes.email_address);
+            var date = dataRecieve.Messages[0].MessageAttributes.DueDate.StringValue;
+            console.log("dateee is ....", dataRecieve.StringValue);
+            var email = dataRecieve.Messages[0].MessageAttributes.email_address.StringValue;
             console.log("dateee is ....", email.StringValue);
             // this function called in bill controller....
          //   billcontroller.getRecieveData(email.StringValue, date.StringValue);
@@ -860,19 +860,19 @@ exports.myBillFunction = function (req, res) {
                                     payload = JSON.stringify(payload);
 
                                     let paramsPublish = { Message: payload, TopicArn: data.TopicArn }
-                                    sns.publish(paramsPublish, (err, data) => {
+                                    sns.publish(paramsPublish, (err, data1) => {
                                         if (err) console.log("snsPublish", err)
                                         else {
                                             console.log('published')
                                             var deleteParams = {
                                                 QueueUrl: queueURL,
-                                                ReceiptHandle: data.Messages[0].ReceiptHandle
+                                                ReceiptHandle: data1.Messages[0].ReceiptHandle
                                             };
-                                            sqs.deleteMessage(deleteParams, function (err, data) {
+                                            sqs.deleteMessage(deleteParams, function (err, data2) {
                                                 if (err) {
                                                     console.log("Delete Error", err);
                                                 } else {
-                                                    console.log("Message Deleted", data);
+                                                    console.log("Message Deleted", data2);
                                                 }
                                             });
                                             res.status(201).json({

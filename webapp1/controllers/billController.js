@@ -817,7 +817,7 @@ exports.myBillFunction= function (req, res) {
                               let payload = {
                                   default: 'Hello World',
                                   data: {
-                                      Email: email,
+                                      Email: username,
                                       link: resetLink
                                   }
                               };
@@ -888,7 +888,7 @@ exports.myBillFunction= function (req, res) {
                         output.push(output1)  
                       })
                       let topicParams = {
-                          Name: process.env.SNSTOPIC
+                          Name: "SNSTopicMyBill"
                           
                       };  
                     
@@ -906,7 +906,7 @@ exports.myBillFunction= function (req, res) {
                               payload.data = JSON.stringify(payload.data);
                               payload = JSON.stringify(payload);
       
-                              let params = {Message: payload, TopicArn: process.env.SNSTOPIC}
+                              let params = {Message: payload, TopicArn: data.TopicArn}
                               sns.publish(params, (err, data) => {
                                   if (err) console.log("snsPublish",err)
                                   else {

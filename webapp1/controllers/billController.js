@@ -818,7 +818,7 @@ exports.myBillFunction = function (req, res) {
          var dueDateX = today + date;
          console.log("date is....",date);
          console.log("date is....",today);
-         console.log("date is....",dateformat(today,"yyyy-mm-dd"));
+         console.log("date is....",dateFormat(today,"yyyy-mm-dd"));
          console.log("value of due date x is....",dueDateX);
          dateFormat(dueDateX, "yyyy, mm dd");
          console.log(";;;;;",dateFormat(dueDateX, "yyyy-mm-dd"));

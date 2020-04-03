@@ -860,19 +860,19 @@ exports.myBillFunction = function (req, res) {
                                     payload = JSON.stringify(payload);
 
                                     let paramsPublish = { Message: payload, TopicArn: data.TopicArn }
-                                    sns.publish(paramsPublish, (err, data1) => {
+                                    sns.publish(paramsPublish, (err, data) => {
                                         if (err) console.log("snsPublish", err)
                                         else {
-                                            console.log('published')
+                                            console.log('published')                                            
                                             var deleteParams = {
                                                 QueueUrl: queueURL,
-                                                ReceiptHandle: data1.Messages[0].ReceiptHandle
+                                                ReceiptHandle: dataRecieve.Messages[0].ReceiptHandle
                                             };
-                                            sqs.deleteMessage(deleteParams, function (err, data2) {
+                                            sqs.deleteMessage(deleteParams, function (err, dataRecieve) {
                                                 if (err) {
                                                     console.log("Delete Error", err);
                                                 } else {
-                                                    console.log("Message Deleted", data2);
+                                                    console.log("Message Deleted", dataRecieve);
                                                 }
                                             });
                                             res.status(201).json({

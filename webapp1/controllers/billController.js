@@ -14,6 +14,7 @@ var sns = new aws.SNS({});
 var sqs = new aws.SQS({ apiVersion: '2012-11-05' });
 
 require('dotenv').config();
+var dateFormat = require('dateformat');
 
 
 var s3 = new aws.S3({
@@ -817,6 +818,10 @@ exports.myBillFunction = function (req, res) {
          //   billcontroller.getRecieveData(email.StringValue, date.StringValue);
          var userid = "";
          var dueDateX = today + date;
+         console.log("value of due date x is....",dueDateX);
+         dateFormat(dueDateX, "yyyy, mm dd");
+         console.log("value of due date x is....",dueDateX);
+
     connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', email, function (error, results, fields) {
         if (error) {
             return res.status(404).send({ message: 'User Not Found' });

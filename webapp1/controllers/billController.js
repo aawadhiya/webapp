@@ -8,8 +8,6 @@ var router = require('../routes/user.routes');
 // Set the region 
 aws.config.update({ region: 'us-east-1' });
 var sns = new aws.SNS({});
-
-
 // Create an SQS service object
 var sqs = new aws.SQS({ apiVersion: '2012-11-05' });
 

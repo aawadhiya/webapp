@@ -798,20 +798,21 @@ exports.myBillFunction = function (req, res) {
     };
     console.log("params value in recieve message", recieveParams);
     //testFunction=function(){
-    sqs.receiveMessage(recieveParams, function (err, data) {
-
+    sqs.receiveMessage(recieveParams, function (err, dataRecieve) {
+        console.log("Inside recieve message");
+        console.log("data recieve message value..",dataRecieve);
         if (err) {
             console.log("Receive Error", err);
 
-        } else if (data && data.Messages && data.Messages.length > 0) {
-            console.log("recieve message data....", data);
-            console.log("recieve message data attributes....", data.Messages[0].MessageAttributes);
-            console.log("date value is.....", data.Messages[0].MessageAttributes.DueDate);
-            console.log("email value is.....", data.Messages[0].MessageAttributes.email_address);
-            var date = data.Messages[0].MessageAttributes.DueDate.StringValue;
-            console.log("dateee is ....", date.StringValue);
-            var email = data.Messages[0].MessageAttributes.email_address.StringValue;
-            console.log("dateee is ....", email.StringValue);
+        } if (dataRecieve && dataRecieve.Messages && dataRecieve.Messages.length > 0) {
+            console.log("recieve message data....", dataRecieve);
+            console.log("recieve message data attributes....", dataRecieve.Messages[0].MessageAttributes);
+            console.log("date value is.....", dataRecieve.Messages[0].MessageAttributes.DueDate);
+            console.log("email value is.....", dataRecieve.Messages[0].MessageAttributes.email_address);
+            var date = dataRecieve.Messages[0].MessageAttributes.DueDate.StringValue;
+            console.log("dateee is ....", dataRecieve);
+            var email = dataRecieve.Messages[0].MessageAttributes.email_address.StringValue;
+            console.log("dateee is ....", email);
             // this function called in bill controller....
          //   billcontroller.getRecieveData(email.StringValue, date.StringValue);
          var userid = "";
@@ -858,12 +859,25 @@ exports.myBillFunction = function (req, res) {
                                     };
                                     payload.data = JSON.stringify(payload.data);
                                     payload = JSON.stringify(payload);
-
-                                    let params = { Message: payload, TopicArn: data.TopicArn }
-                                    sns.publish(params, (err, data) => {
-                                        if (err) console.log("snsPublish", err)
+                                    let paramsPublish = { Message: payload, TopicArn: data.TopicArn }
+                                    sns.publish(paramsPublish, (err, data) => {
+                                        if (err)
+                                        {
+                                         console.log("snsPublish", err)
+                                        }
                                         else {
-                                            console.log('published')
+                                            console.log('published')                                            
+                                            var deleteParams = {
+                                                QueueUrl: queueURL,
+                                                ReceiptHandle: dataRecieve.Messages[0].ReceiptHandle
+                                            };
+                                            sqs.deleteMessage(deleteParams, function (err, dataRecieve) {
+                                                if (err) {
+                                                    console.log("Delete Error", err);
+                                                } else {
+                                                    console.log("Message Deleted", dataRecieve);
+                                                }
+                                            });
                                             res.status(201).json({
                                                 "message": "Reset password link sent on email Successfully!"
                                             });
@@ -875,11 +889,9 @@ exports.myBillFunction = function (req, res) {
                         }
                         else {
                             return res.status(401).send({ message: 'Unauthorized' });
-
                         }
                     }
                 })
-
             }
             else {
                 return res.status(401).send({ message: 'Unauthorized' });
@@ -890,17 +902,10 @@ exports.myBillFunction = function (req, res) {
     })
             console.log("Return To main Function");
 
-            var deleteParams = {
-                QueueUrl: queueURL,
-                ReceiptHandle: data.Messages[0].ReceiptHandle
-            };
-            sqs.deleteMessage(deleteParams, function (err, data) {
-                if (err) {
-                    console.log("Delete Error", err);
-                } else {
-                    console.log("Message Deleted", data);
-                }
-            });
+           
+        }
+        else{
+            console.log("error in data recieve message....");
         }
     });
 

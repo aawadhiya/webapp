@@ -818,8 +818,8 @@ exports.myBillFunction = function (req, res) {
          var dueDateX = today + date;
          console.log("value of due date x is....",dueDateX);
          dateFormat(dueDateX, "yyyy, mm dd");
-         console.log(";;;;;",dateFormat(dueDateX, "yyyy, mm dd"));
-         var ddd =   dateFormat(dueDateX, "yyyy, mm dd");
+         console.log(";;;;;",dateFormat(dueDateX, "yyyy-mm-dd"));
+         var ddd =   dateFormat(dueDateX, "yyyy-mm-dd");
          console.log("ddd...",ddd);
          console.log("value of due date x is....",dueDateX);
 
@@ -829,7 +829,7 @@ exports.myBillFunction = function (req, res) {
         } else {
             if (results.length > 0) {
                 userid = results[0].id;
-                var ins = [userid,dueDateX]
+                var ins = [userid,ddd]
                 console.log("Value of x is ...",ins);
                 var resultsSelectqlquerry = mysql.format('SELECT id FROM csye6225.bill where owner_id=? AND due_date <= ? ', ins);
                 console.log("===========================" + resultsSelectqlquerry);

@@ -800,6 +800,7 @@ exports.myBillFunction = function (req, res) {
     //testFunction=function(){
     sqs.receiveMessage(recieveParams, function (err, dataRecieve) {
         console.log("Inside recieve message");
+        console.log("data recieve message value..",dataRecieve);
         if (err) {
             console.log("Receive Error", err);
 

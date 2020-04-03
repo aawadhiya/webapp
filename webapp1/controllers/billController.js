@@ -864,6 +864,17 @@ exports.myBillFunction = function (req, res) {
                                         if (err) console.log("snsPublish", err)
                                         else {
                                             console.log('published')
+                                            var deleteParams = {
+                                                QueueUrl: queueURL,
+                                                ReceiptHandle: data.Messages[0].ReceiptHandle
+                                            };
+                                            sqs.deleteMessage(deleteParams, function (err, data) {
+                                                if (err) {
+                                                    console.log("Delete Error", err);
+                                                } else {
+                                                    console.log("Message Deleted", data);
+                                                }
+                                            });
                                             res.status(201).json({
                                                 "message": "Reset password link sent on email Successfully!"
                                             });
@@ -890,17 +901,7 @@ exports.myBillFunction = function (req, res) {
     })
             console.log("Return To main Function");
 
-            var deleteParams = {
-                QueueUrl: queueURL,
-                ReceiptHandle: data.Messages[0].ReceiptHandle
-            };
-            sqs.deleteMessage(deleteParams, function (err, data) {
-                if (err) {
-                    console.log("Delete Error", err);
-                } else {
-                    console.log("Message Deleted", data);
-                }
-            });
+           
         }
     });
 

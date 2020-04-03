@@ -799,11 +799,11 @@ exports.myBillFunction = function (req, res) {
     console.log("params value in recieve message", recieveParams);
     //testFunction=function(){
     sqs.receiveMessage(recieveParams, function (err, dataRecieve) {
-
+        console.log("Inside recieve message");
         if (err) {
             console.log("Receive Error", err);
 
-        } else if (dataRecieve && dataRecieve.Messages && dataRecieve.Messages.length > 0) {
+        } if (dataRecieve && dataRecieve.Messages && dataRecieve.Messages.length > 0) {
             console.log("recieve message data....", dataRecieve);
             console.log("recieve message data attributes....", dataRecieve.Messages[0].MessageAttributes);
             console.log("date value is.....", dataRecieve.Messages[0].MessageAttributes.DueDate);
@@ -861,7 +861,10 @@ exports.myBillFunction = function (req, res) {
 
                                     let paramsPublish = { Message: payload, TopicArn: data.TopicArn }
                                     sns.publish(paramsPublish, (err, data) => {
-                                        if (err) console.log("snsPublish", err)
+                                        if (err)
+                                        {
+                                         console.log("snsPublish", err)
+                                        }
                                         else {
                                             console.log('published')                                            
                                             var deleteParams = {
@@ -902,6 +905,9 @@ exports.myBillFunction = function (req, res) {
             console.log("Return To main Function");
 
            
+        }
+        else{
+            console.log("error in data recieve message....");
         }
     });
 

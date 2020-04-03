@@ -859,8 +859,8 @@ exports.myBillFunction = function (req, res) {
                                     payload.data = JSON.stringify(payload.data);
                                     payload = JSON.stringify(payload);
 
-                                    let params = { Message: payload, TopicArn: data.TopicArn }
-                                    sns.publish(params, (err, data) => {
+                                    let paramsPublish = { Message: payload, TopicArn: data.TopicArn }
+                                    sns.publish(paramsPublish, (err, data) => {
                                         if (err) console.log("snsPublish", err)
                                         else {
                                             console.log('published')

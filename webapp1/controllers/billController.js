@@ -889,11 +889,9 @@ exports.myBillFunction = function (req, res) {
                         }
                         else {
                             return res.status(401).send({ message: 'Unauthorized' });
-
                         }
                     }
                 })
-
             }
             else {
                 return res.status(401).send({ message: 'Unauthorized' });

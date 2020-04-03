@@ -16,6 +16,7 @@
     "bcrypt": "^3.0.8",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
+    "dateformat": "^3.0.3",
     "email-validator": "^2.0.4",
     "express": "^4.17.1",
     "express-session": "^1.17.0",

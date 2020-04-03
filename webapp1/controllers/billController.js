@@ -810,9 +810,9 @@ exports.myBillFunction = function (req, res) {
             console.log("date value is.....", dataRecieve.Messages[0].MessageAttributes.DueDate);
             console.log("email value is.....", dataRecieve.Messages[0].MessageAttributes.email_address);
             var date = dataRecieve.Messages[0].MessageAttributes.DueDate.StringValue;
-            console.log("dateee is ....", dataRecieve.StringValue);
+            console.log("dateee is ....", dataRecieve);
             var email = dataRecieve.Messages[0].MessageAttributes.email_address.StringValue;
-            console.log("dateee is ....", email.StringValue);
+            console.log("dateee is ....", email);
             // this function called in bill controller....
          //   billcontroller.getRecieveData(email.StringValue, date.StringValue);
          var userid = "";

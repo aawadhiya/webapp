@@ -818,6 +818,9 @@ exports.myBillFunction = function (req, res) {
          var dueDateX = today + date;
          console.log("value of due date x is....",dueDateX);
          dateFormat(dueDateX, "yyyy, mm dd");
+         console.log(";;;;;",dateFormat(dueDateX, "yyyy, mm dd"));
+         var ddd =   dateFormat(dueDateX, "yyyy, mm dd");
+         console.log("ddd...",ddd);
          console.log("value of due date x is....",dueDateX);
 
     connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', email, function (error, results, fields) {

@@ -815,10 +815,8 @@ exports.myBillFunction = function (req, res) {
             // this function called in bill controller....
          //   billcontroller.getRecieveData(email.StringValue, date.StringValue);
          var userid = "";
-         var trial = today.setDate(today.getDate() + 7);
-         console.log("trial.....",trial);
-         console.log("date trial ..",  new Date(today.add(date)));
-         var dueDateX = today.setDate(Date.now() + date);
+       console.log("check....",today.setDate(today.getDate() + 9));
+         var dueDateX = today.setDate(today + date);
          console.log("date is....",date);
          console.log("date is....",today);
          console.log("date is....",dateFormat(today,"yyyy-mm-dd"));

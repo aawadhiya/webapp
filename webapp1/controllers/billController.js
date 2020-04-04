@@ -815,17 +815,7 @@ exports.myBillFunction = function (req, res) {
             // this function called in bill controller....
          //   billcontroller.getRecieveData(email.StringValue, date.StringValue);
          var userid = "";
-       console.log("check....",today.setDate(today.getDate() + 9));
-         var dueDateX = today.setDate(today + date);
-         console.log("date is....",date);
-         console.log("date is....",today);
-         console.log("date is....",dateFormat(today,"yyyy-mm-dd"));
-         console.log("value of due date x is....",dueDateX);
-         dateFormat(dueDateX, "yyyy, mm dd");
-         console.log(";;;;;",dateFormat(dueDateX, "yyyy-mm-dd"));
-         var ddd =   dateFormat(dueDateX, "yyyy-mm-dd");
-         console.log("ddd...",ddd);
-         console.log("value of due date x is....",dueDateX);
+              
 
     connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', email, function (error, results, fields) {
         if (error) {
@@ -833,9 +823,9 @@ exports.myBillFunction = function (req, res) {
         } else {
             if (results.length > 0) {
                 userid = results[0].id;
-                var ins = [userid,ddd]
+                var ins = [userid]
                 console.log("Value of x is ...",ins);
-                var resultsSelectqlquerry = mysql.format('SELECT id FROM csye6225.bill where owner_id=? AND due_date <= ? ', ins);
+                var resultsSelectqlquerry = mysql.format('SELECT id FROM csye6225.bill where owner_id=?', ins);
                 console.log("===========================" + resultsSelectqlquerry);
                 connection.query(resultsSelectqlquerry, function (error, results, fields) {
                     if (error) {
@@ -846,13 +836,13 @@ exports.myBillFunction = function (req, res) {
                         })
                     } else {
                         console.log("Results length is ....",results.length);
-                        if(results.length <1)
-                        {
-                            console.log("No data found for given due date");
-                            return res.status(404).send({
-                               message : "No bill due for this data,.." 
-                            });
-                        }
+                        // if(results.length <1)
+                        // {
+                        //     console.log("No data found for given due date");
+                        //     return res.status(404).send({
+                        //        message : "No bill due for this data,.." 
+                        //     });
+                        // }
                         if (results.length > 0) {
                             var output = [];
                             results.forEach(function (file) {

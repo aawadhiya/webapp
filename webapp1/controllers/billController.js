@@ -816,7 +816,7 @@ exports.myBillFunction = function (req, res) {
          //   billcontroller.getRecieveData(email.StringValue, date.StringValue);
          var userid = "";
          var trial = today.setDate(today.getDate() + 7);
-         console.log("trial..",trial);
+         console.log("trial.....",trial);
          console.log("date trial ..",  new Date(today.add(date)));
          var dueDateX = today.setDate(Date.now() + date);
          console.log("date is....",date);

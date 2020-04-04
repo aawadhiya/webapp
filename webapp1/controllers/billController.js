@@ -8,12 +8,11 @@ var router = require('../routes/user.routes');
 // Set the region 
 aws.config.update({ region: 'us-east-1' });
 var sns = new aws.SNS({});
-
-
 // Create an SQS service object
 var sqs = new aws.SQS({ apiVersion: '2012-11-05' });
 
 require('dotenv').config();
+var dateFormat = require('dateformat');
 
 
 var s3 = new aws.S3({
@@ -729,7 +728,7 @@ exports.myBillFunction = function (req, res) {
 
     console.log("QueuURL....", process.env.QueueUrl)
     logger.info("Get myBillFunction Bill");
-    var today = new Date();
+    var today = Date.now();
     var dateParam = req.params['x'];
     console.log("Value of x days is ...", dateParam);
 
@@ -810,12 +809,14 @@ exports.myBillFunction = function (req, res) {
             console.log("date value is.....", dataRecieve.Messages[0].MessageAttributes.DueDate);
             console.log("email value is.....", dataRecieve.Messages[0].MessageAttributes.email_address);
             var date = dataRecieve.Messages[0].MessageAttributes.DueDate.StringValue;
-            console.log("dateee is ....", dataRecieve);
+            console.log("actual x  is ....", date);
             var email = dataRecieve.Messages[0].MessageAttributes.email_address.StringValue;
             console.log("dateee is ....", email);
             // this function called in bill controller....
          //   billcontroller.getRecieveData(email.StringValue, date.StringValue);
          var userid = "";
+              
+
     connection.query('SELECT * FROM csye6225.users WHERE email_address = ?', email, function (error, results, fields) {
         if (error) {
             return res.status(404).send({ message: 'User Not Found' });
@@ -823,6 +824,7 @@ exports.myBillFunction = function (req, res) {
             if (results.length > 0) {
                 userid = results[0].id;
                 var ins = [userid]
+                console.log("Value of x is ...",ins);
                 var resultsSelectqlquerry = mysql.format('SELECT id FROM csye6225.bill where owner_id=?', ins);
                 console.log("===========================" + resultsSelectqlquerry);
                 connection.query(resultsSelectqlquerry, function (error, results, fields) {
@@ -833,7 +835,14 @@ exports.myBillFunction = function (req, res) {
                             "failed": "Not Found"
                         })
                     } else {
-                        console.log(results.length);
+                        console.log("Results length is ....",results.length);
+                        // if(results.length <1)
+                        // {
+                        //     console.log("No data found for given due date");
+                        //     return res.status(404).send({
+                        //        message : "No bill due for this data,.." 
+                        //     });
+                        // }
                         if (results.length > 0) {
                             var output = [];
                             results.forEach(function (file) {

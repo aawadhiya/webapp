@@ -728,7 +728,7 @@ exports.myBillFunction = function (req, res) {
 
     console.log("QueuURL....", process.env.QueueUrl)
     logger.info("Get myBillFunction Bill");
-    var today = new Date();
+    var today = Date.now();
     var dateParam = req.params['x'];
     console.log("Value of x days is ...", dateParam);
 
@@ -815,7 +815,7 @@ exports.myBillFunction = function (req, res) {
             // this function called in bill controller....
          //   billcontroller.getRecieveData(email.StringValue, date.StringValue);
          var userid = "";
-         var dueDateX = today + date;
+         var dueDateX = today.setDate(today.getDate() + date);
          console.log("date is....",date);
          console.log("date is....",today);
          console.log("date is....",dateFormat(today,"yyyy-mm-dd"));
